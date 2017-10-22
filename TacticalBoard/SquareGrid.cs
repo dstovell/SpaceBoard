@@ -26,5 +26,10 @@ namespace TacticalBoard
 		{
 			return false;
 		}
+
+		public virtual GridNode GetNode(int x, int y)
+		{
+			return this.Nodes[x,y];
+		}
 	}
 }

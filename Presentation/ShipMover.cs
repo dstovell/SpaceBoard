@@ -26,6 +26,9 @@ public class ShipMover : MonoBehaviour
 	private Vector3 WarpFrom;
 	private Vector3 WarpTo;
 
+	private int lastX = -1;
+	private int lastY = -1;
+
 	void Awake()
 	{
 		this.Entity = this.gameObject.GetComponent<GameBoardEntity>();
@@ -68,6 +71,15 @@ public class ShipMover : MonoBehaviour
 		//this.transform.rotation = this.transform.rotation;
 	}
 
+	void DoneWarpIn() 
+	{
+		this.Stop();
+		if (this.Entity != null)
+		{
+			this.Entity.Activate(this.transform.position);
+		}
+	}
+
 	void Update() 
 	{
 		if (this.IsDead())
@@ -77,6 +89,25 @@ public class ShipMover : MonoBehaviour
 			return;
 		}
 
+		if (this.moveMode == MoveMode.Idle)
+		{
+			if ((this.Entity != null) && this.Entity.IsActive())
+			{
+				float x = TacticalBoardComponent.Instance.GetX(this.Entity.X);
+				float y = TacticalBoardComponent.Instance.GetY(this.Entity.Y);
+
+				if ((this.lastX != this.Entity.X) || (this.lastY != this.Entity.Y))
+				{
+					Debug.Log("Need to move from " + this.transform.position.x + " " + this.transform.position.y + " to " + x + " " + y);
+
+					this.lastX = this.Entity.X;
+					this.lastY = this.Entity.Y;
+
+					this.MoveTo(TacticalBoardComponent.Instance.GetPos(this.Entity.X, this.Entity.Y));
+					return;
+				}
+			}
+		}
 		if (this.moveMode == MoveMode.Warping)
 		{
 			this.WarpTime += Time.deltaTime;
@@ -88,6 +119,12 @@ public class ShipMover : MonoBehaviour
 
 			this.UpdateThrusters();
 
+			float distance = Vector3.Distance(this.transform.position, this.WarpTo);
+			if (distance == 0.0f)
+			{
+				this.DoneWarpIn();
+			}
+
 			return;
 		}
 
@@ -96,7 +133,7 @@ public class ShipMover : MonoBehaviour
 			float distance = Vector3.Distance(this.transform.position, this.MoveToTarget);
 			if (distance == 0.0f)
 			{
-				//this.Stop();
+				this.Stop();
 			}
 
 			Vector3 desiredDirection = (this.MoveToTarget - this.transform.position).normalized;

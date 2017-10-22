@@ -34,5 +34,10 @@ namespace TacticalBoard
 		{
 			return false;
 		}
+
+		public virtual GridNode GetNode(int x, int y)
+		{
+			return null;
+		}
 	}
 }

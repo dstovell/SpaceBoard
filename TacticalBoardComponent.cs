@@ -15,11 +15,29 @@ public class TacticalBoardComponent : MonoBehaviour
 
 	private TacticalBoard.Manager Board;
 
+	public static TacticalBoardComponent Instance;
+
 	void Awake() 
 	{
+		Instance = this;
 		TacticalBoard.Manager.Init(this.SizeX, this.SizeY);
 		this.Board = TacticalBoard.Manager.Instance;
 		CreateBoard();
+	}
+
+	public float GetX(int x)
+	{
+		return (float)(x - this.SizeX/2) * this.SizeScale;
+	}
+
+	public float GetY(int y)
+	{
+		return (float)(y - this.SizeY/2) * this.SizeScale;
+	}
+
+	public Vector3 GetPos(int x, int y)
+	{
+		return new Vector3(this.GetX(x), 0.0f, this.GetY(y));
 	}
 
 	void CreateBoard()
@@ -34,10 +52,7 @@ public class TacticalBoardComponent : MonoBehaviour
 			for (int y=0; y<this.SizeY; y++)
 			{
 				GameObject obj = GameObject.Instantiate(this.BoardNodePrefab, this.transform);
-
-				float xPos = (float)(x - this.SizeX/2) * this.SizeScale;
-				float zPos = (float)(y - this.SizeY/2) * this.SizeScale;
-				obj.transform.SetPositionAndRotation(new Vector3(xPos, 0.0f, zPos), Quaternion.identity);
+				obj.transform.SetPositionAndRotation(this.GetPos(x, y), Quaternion.identity);
 			}
 		}
 	}
@@ -53,7 +68,7 @@ public class TacticalBoardComponent : MonoBehaviour
 			{
 				TacticalBoard.Manager.Instance.Update();
 				this.TimeSinceUpdate = 0.0f;
-				Debug.Log("TurnCount=" + this.Board.TurnCount + " " + this.Board.Entites.Count);
+				//Debug.Log("TurnCount=" + this.Board.TurnCount + " " + this.Board.Entites.Count);
 			}
 		}
 	}

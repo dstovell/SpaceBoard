@@ -28,7 +28,7 @@ namespace TacticalBoard
 
 		public Entity AddEntity(EntityParams ep)
 		{
-			Entity e = new Entity(ep);
+			Entity e = new Entity(this.Board, ep);
 			this.Entites.Add(e);
 			return e;
 		}

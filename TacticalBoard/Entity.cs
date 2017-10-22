@@ -25,8 +25,8 @@ namespace TacticalBoard
 		public int armour = 1;
 		public int shield = 1;
 
-		public int x = 1;
-		public int y = 1;
+		public int x = 3;
+		public int y = 0;
 	}
 
 	public class Entity
@@ -35,10 +35,11 @@ namespace TacticalBoard
 		public EntityParams Current = null;
 		public Grid ParentGrid = null;
 		public GridNode Position = null;
+		public bool Activated = false;
 
-		public Entity(EntityParams ep)
+		public Entity(Grid grid, EntityParams ep)
 		{
-			this.Init(ep);
+			this.Init(grid, ep);
 		}
 
 		public int X
@@ -57,8 +58,9 @@ namespace TacticalBoard
 			}
 		}
 
-		protected void Init(EntityParams ep)
+		protected void Init(Grid grid, EntityParams ep)
 		{
+			this.ParentGrid = grid;
 			this.Initial = ep;
 			Reset();
 		}
@@ -91,8 +93,33 @@ namespace TacticalBoard
 			return false;
 		}
 
+		public bool ActivateAt(int x, int y)
+		{
+			if (this.Activated)
+			{
+				return false;
+			}
+
+			if (this.ParentGrid != null)
+			{
+				GridNode n = this.ParentGrid.GetNode(x, y);
+				this.MoveTo(n);
+			}
+
+			this.Activated = true;
+			return true;
+		}
+
 		public bool MoveTo(GridNode n)
 		{
+			this.Position = n;
+			if ((this.Position != null) && (this.Current != null))
+			{
+				this.Current.x = this.Position.x;
+				this.Current.y = this.Position.y;
+				return true;
+			}
+
 			return false;
 		}
 
@@ -101,14 +128,14 @@ namespace TacticalBoard
 			return (this.Current != null);
 		}
 
-		public bool CanMove()
+		public bool IsActive()
 		{
-			return (this.IsInitialized() && (this.Current.move > 0));
+			return (IsInitialized() && this.Activated);
 		}
 
-		public bool CanMoveTo()
+		public bool CanMove()
 		{
-			return (this.IsInitialized() && (this.Current.move > 0));
+			return (this.IsActive() && (this.Current.move > 0));
 		}
 	}
 }
