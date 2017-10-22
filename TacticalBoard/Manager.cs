@@ -24,11 +24,17 @@ namespace TacticalBoard
 		public void Update()
 		{
 			this.TurnCount++;
+
+			for (int i=0; i<this.Entites.Count; i++)
+			{
+				Entity e = this.Entites[i];
+				e.Update();
+			}
 		}
 
-		public Entity AddEntity(EntityParams ep)
+		public Entity AddEntity(EntityParams ep, Brain br = null)
 		{
-			Entity e = new Entity(this.Board, ep);
+			Entity e = new Entity(this.Board, ep, br);
 			this.Entites.Add(e);
 			return e;
 		}

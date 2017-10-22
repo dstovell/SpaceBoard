@@ -11,9 +11,14 @@ namespace TacticalBoard
 
 	public class GridNode
 	{
+		public GridNode(int dx, int dy)
+		{
+			this.x = dx;
+			this.y = dy;
+		}
+
 		public int x;
 		public int y;
-		public int z;
 
 		public bool occupied;
 	}

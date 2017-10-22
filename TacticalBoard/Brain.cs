@@ -5,7 +5,16 @@ namespace TacticalBoard
 {
 	public abstract class Brain
 	{
-		public abstract void OnThink();
+		public Brain()
+		{
+		}
+
+		public bool Think(Entity e)
+		{
+			return this.OnThink(e);
+		}
+
+		public abstract bool OnThink(Entity e);
 	}
 }
 

@@ -10,6 +10,14 @@ namespace TacticalBoard
 		public SquareGrid(int x, int y)
 		{
 			this.Nodes = new GridNode[x,y];
+
+			for (int dx=0; dx<x; dx++)
+			{
+				for (int dy=0; dy<y; dy++)
+				{
+					this.Nodes[dx,dy] = new GridNode(dx, dy);
+				}
+			}
 		}
 
 		public bool Spawn(Entity entity, SpawnType st)
@@ -27,8 +35,13 @@ namespace TacticalBoard
 			return false;
 		}
 
-		public virtual GridNode GetNode(int x, int y)
+		public override GridNode GetNode(int x, int y)
 		{
+			if ((x >= this.Nodes.GetLength(0)) || (y >= this.Nodes.GetLength(1)))
+			{
+				return null;
+			}
+
 			return this.Nodes[x,y];
 		}
 	}

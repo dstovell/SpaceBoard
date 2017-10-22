@@ -20,7 +20,7 @@ namespace TacticalBoard
 			this.y = p.y;
 		}
 
-		public int move = 1;
+		public float move = 1.0f;
 		public int attack = 1;
 		public int armour = 1;
 		public int shield = 1;
@@ -36,10 +36,16 @@ namespace TacticalBoard
 		public Grid ParentGrid = null;
 		public GridNode Position = null;
 		public bool Activated = false;
+		public Brain CurrentBrain = null;
 
-		public Entity(Grid grid, EntityParams ep)
+		private float accumulatedMove = 0.0f;
+
+		public Entity(Grid grid, EntityParams ep, Brain br = null)
 		{
-			this.Init(grid, ep);
+			this.ParentGrid = grid;
+			this.Initial = ep;
+			this.CurrentBrain = br;
+			this.Reset();
 		}
 
 		public int X
@@ -56,13 +62,6 @@ namespace TacticalBoard
 			{
 				return (this.Current != null) ? this.Current.y : 0;
 			}
-		}
-
-		protected void Init(Grid grid, EntityParams ep)
-		{
-			this.ParentGrid = grid;
-			this.Initial = ep;
-			Reset();
 		}
 
 		public void Reset()
@@ -136,6 +135,34 @@ namespace TacticalBoard
 		public bool CanMove()
 		{
 			return (this.IsActive() && (this.Current.move > 0));
+		}
+
+		public int AvailableMoveAmount()
+		{
+			if (!this.CanMove())
+			{
+				return 0;
+			}
+
+			return (int)System.Math.Floor(this.accumulatedMove);
+		}
+
+		public bool Update()
+		{
+			TacticalBoard.Debug.Log("Entity.Update");
+			this.accumulatedMove += this.Current.move;
+			if (this.accumulatedMove > this.Current.move)
+			{
+				this.accumulatedMove = this.Current.move;
+			}
+
+			if (this.CurrentBrain != null)
+			{
+				TacticalBoard.Debug.Log("Entity.Think");
+				return this.CurrentBrain.Think(this);
+			}
+
+			return false;
 		}
 	}
 }

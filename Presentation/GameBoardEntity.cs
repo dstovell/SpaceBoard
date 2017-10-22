@@ -37,7 +37,9 @@ public class GameBoardEntity : MonoBehaviour
 		this.Params.armour = this.armour;
 		this.Params.shield = this.shield;
 
-		this.Entity = TacticalBoard.Manager.Instance.AddEntity(this.Params);
+		TacticalBoard.ChargeForwardBrain br = new TacticalBoard.ChargeForwardBrain();
+
+		this.Entity = TacticalBoard.Manager.Instance.AddEntity(this.Params, br);
 	}
 
 	public void Activate(Vector3 p)
