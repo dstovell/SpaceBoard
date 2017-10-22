@@ -1,0 +1,134 @@
+﻿using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+
+public class ShipMover : MonoBehaviour
+{
+	public enum MoveMode
+	{
+		Idle,
+		Warping,
+		Moving
+	}
+	public MoveMode moveMode = MoveMode.Idle;
+
+	public GameBoardEntity Entity;
+
+	public float MoveSpeed = 1f;
+	public float RotateSpeed = 1f;
+	private Vector3 MoveToTarget = Vector3.zero;
+
+	public GameObject [] Thrusters;
+
+	public float WarpDistance = 1000;
+	public float WarpDuration = 3f;
+	private float WarpTime = 3f;
+	private Vector3 WarpFrom;
+	private Vector3 WarpTo;
+
+	void Awake()
+	{
+		this.Entity = this.gameObject.GetComponent<GameBoardEntity>();
+	}
+
+	void OnDestroy()
+	{
+	}
+
+	// Use this for initialization
+	void Start() 
+	{
+	}
+
+	public bool IsDead()
+	{
+		return false;
+	}
+
+	public void MoveTo(Vector3 to)
+	{
+		this.moveMode = MoveMode.Moving;
+		this.MoveToTarget = to;
+	}
+
+	public void Stop()
+	{
+		this.moveMode = MoveMode.Idle;
+		this.MoveToTarget = Vector3.zero;
+	}
+
+	public void Warp(Transform to) 
+	{
+		this.moveMode = MoveMode.Warping;
+		this.WarpTo = to.position;
+		this.WarpFrom = this.WarpTo - this.WarpDistance * to.transform.forward;
+		this.WarpTime = 0f;
+
+		this.transform.position = this.WarpFrom;
+		//this.transform.rotation = this.transform.rotation;
+	}
+
+	void Update() 
+	{
+		if (this.IsDead())
+		{
+			//this.StopFiring();
+			//this.Stop();
+			return;
+		}
+
+		if (this.moveMode == MoveMode.Warping)
+		{
+			this.WarpTime += Time.deltaTime;
+
+			float t = this.WarpTime / this.WarpDuration;
+			t = Mathf.Min(t*t*t*t, 1f);
+
+			this.transform.position = Vector3.Lerp(this.WarpFrom, this.WarpTo, t);
+
+			this.UpdateThrusters();
+
+			return;
+		}
+
+		if (this.moveMode == MoveMode.Moving)
+		{
+			float distance = Vector3.Distance(this.transform.position, this.MoveToTarget);
+			if (distance == 0.0f)
+			{
+				//this.Stop();
+			}
+
+			Vector3 desiredDirection = (this.MoveToTarget - this.transform.position).normalized;
+			Quaternion desiredRotation = (desiredDirection != Vector3.zero) ? Quaternion.LookRotation(desiredDirection) : this.transform.rotation;
+			this.transform.rotation = Quaternion.RotateTowards(this.transform.rotation, desiredRotation, this.RotateSpeed);
+
+			this.transform.position = Vector3.MoveTowards(this.transform.position, this.MoveToTarget, this.MoveSpeed);
+		}
+
+		this.UpdateThrusters();
+		//this.UpdateWeapons();
+		//this.ScanForHostiles();
+	}
+
+	private void UpdateThrusters()
+	{
+		for (int i=0; i<this.Thrusters.Length; i++)
+		{
+			TrailRenderer trail = this.Thrusters[i].GetComponent<TrailRenderer>();
+			if (this.moveMode == MoveMode.Warping)
+			{
+				trail.time = 0.1f;
+			}
+			else if (this.IsDead())
+			{
+				trail.time = 0.0f;
+			}
+			else
+			{
+				trail.time = 0.3f;
+			}
+		}
+	}
+}
+
