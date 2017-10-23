@@ -42,11 +42,21 @@ public class GameBoardEntity : MonoBehaviour
 		this.Entity = TacticalBoard.Manager.Instance.AddEntity(this.Params, br);
 	}
 
+	public bool RequestDeployment(TacticalBoard.GridNode node)
+	{
+		if (this.Entity != null)
+		{
+			return this.Entity.RequestDeployment(node);
+		}
+
+		return false;
+	}
+
 	public void Activate(Vector3 p)
 	{
 		if (this.Entity != null)
 		{
-			this.Entity.ActivateAt(0, 4);
+			this.Entity.ActivateAt(3, 0);
 		}
 	}
 

@@ -4,21 +4,30 @@ using UnityEngine;
 
 public class ShipUI : MonoBehaviour 
 {
+	public GameBoardEntity Entity;
 	public ShipMover Mover;
 	public Transform Warper;
 
 	// Use this for initialization
-	void Start () 
+	void Awake() 
 	{
-		
+		if (this.Entity == null)
+		{
+			this.Entity = this.Mover.GetComponent<GameBoardEntity>();	
+		}
 	}
 
 	void OnMouseDown()
 	{
 		Debug.Log("OnMouseDown " + this.gameObject.name);
-		if ((this.Mover != null) && (this.Warper != null))
+		if (this.Entity != null)
 		{
-			this.Mover.Warp(this.Warper);
+			//this.Entity.RequestDeployment();
+		}
+		else if ((this.Mover != null) && (this.Warper != null))
+		{
+			//this.Mover.Warp(this.Warper);
+
 		}
 	}
 	

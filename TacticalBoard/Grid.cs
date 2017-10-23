@@ -17,6 +17,7 @@ namespace TacticalBoard
 			this.y = dy;
 		}
 
+		public ushort Id;
 		public int x;
 		public int y;
 

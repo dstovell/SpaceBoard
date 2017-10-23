@@ -25,12 +25,13 @@ namespace TacticalBoard
 		public int armour = 1;
 		public int shield = 1;
 
-		public int x = 3;
+		public int x = 0;
 		public int y = 0;
 	}
 
 	public class Entity
 	{
+		public ushort Id;
 		public EntityParams Initial = null;
 		public EntityParams Current = null;
 		public Grid ParentGrid = null;
@@ -40,12 +41,14 @@ namespace TacticalBoard
 
 		private float accumulatedMove = 0.0f;
 
-		public Entity(Grid grid, EntityParams ep, Brain br = null)
+		public Entity(ushort id, Grid grid, EntityParams ep, Brain br = null)
 		{
+			this.Id = id;
 			this.ParentGrid = grid;
 			this.Initial = ep;
 			this.CurrentBrain = br;
 			this.Reset();
+			TacticalBoard.Debug.Log("Entity Create " + br);
 		}
 
 		public int X
@@ -92,6 +95,45 @@ namespace TacticalBoard
 			return false;
 		}
 
+		public bool RequestDeployment(int x, int y)
+		{
+			if (this.ParentGrid == null)
+			{
+				return false;
+			}
+
+			return this.RequestDeployment( this.ParentGrid.GetNode(x, y) );
+		}
+
+		public bool RequestDeployment(GridNode node)
+		{
+			if (this.ParentGrid == null)
+			{
+				return false;
+			}
+
+			if (node == null)
+			{
+				return false;
+			}
+
+			Request r = new Request(InterventionType.Deployment, Manager.Instance.TurnCount, this.Id, node.Id);
+			r.OnRequestComplete = this.OnDeploymentRequestComplete;
+			r.OnRequestAction = this.OnDeployment;
+
+			InterventionsManager.Instance.RequestIntervention(r);
+
+			return true;
+		}
+
+		public void OnDeploymentRequestComplete(Request r)
+		{
+		}
+
+		public void OnDeployment(Request r)
+		{
+		}
+
 		public bool ActivateAt(int x, int y)
 		{
 			if (this.Activated)
@@ -102,7 +144,10 @@ namespace TacticalBoard
 			if (this.ParentGrid != null)
 			{
 				GridNode n = this.ParentGrid.GetNode(x, y);
-				this.MoveTo(n);
+				if (n != null)
+				{
+					this.MoveTo(n);
+				}
 			}
 
 			this.Activated = true;
@@ -147,22 +192,32 @@ namespace TacticalBoard
 			return (int)System.Math.Floor(this.accumulatedMove);
 		}
 
-		public bool Update()
+		public bool UpdateMove()
 		{
-			TacticalBoard.Debug.Log("Entity.Update");
 			this.accumulatedMove += this.Current.move;
 			if (this.accumulatedMove > this.Current.move)
 			{
 				this.accumulatedMove = this.Current.move;
 			}
 
+			bool moved = false;
 			if (this.CurrentBrain != null)
 			{
-				TacticalBoard.Debug.Log("Entity.Think");
-				return this.CurrentBrain.Think(this);
+				moved = this.CurrentBrain.ThinkMove(this);
 			}
 
-			return false;
+			return moved;
+		}
+
+		public bool UpdateAttack()
+		{
+			bool attacked = false;
+			if (this.CurrentBrain != null)
+			{
+				attacked = this.CurrentBrain.ThinkAttack(this);
+			}
+
+			return attacked;
 		}
 	}
 }

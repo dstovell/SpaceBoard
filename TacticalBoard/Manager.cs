@@ -13,6 +13,8 @@ namespace TacticalBoard
 
 		public List<Entity> Entites;
 
+		ushort EntityCount = 0;
+
 		public static void Init(int x, int y)
 		{
 			if (TacticalBoard.Manager.Instance == null)
@@ -28,13 +30,20 @@ namespace TacticalBoard
 			for (int i=0; i<this.Entites.Count; i++)
 			{
 				Entity e = this.Entites[i];
-				e.Update();
+				e.UpdateMove();
+			}
+
+			for (int i=0; i<this.Entites.Count; i++)
+			{
+				Entity e = this.Entites[i];
+				e.UpdateAttack();
 			}
 		}
 
 		public Entity AddEntity(EntityParams ep, Brain br = null)
 		{
-			Entity e = new Entity(this.Board, ep, br);
+			this.EntityCount++;
+			Entity e = new Entity(this.EntityCount, this.Board, ep, br);
 			this.Entites.Add(e);
 			return e;
 		}
@@ -42,6 +51,7 @@ namespace TacticalBoard
 		public Manager(int x, int y)
 		{
 			this.TurnCount = 0;
+			this.EntityCount = 0;
 
 			this.Board = new SquareGrid(x, y);
 			this.Entites = new List<Entity>();

@@ -5,7 +5,7 @@ namespace TacticalBoard
 {
 	public class ChargeForwardBrain : Brain
 	{
-		public override bool OnThink(Entity e)
+		public override bool OnThinkMove(Entity e)
 		{
 			if (e.AvailableMoveAmount() > 0)
 			{
@@ -18,6 +18,11 @@ namespace TacticalBoard
 				}
 			}
 
+			return false;
+		}
+
+		public override bool OnThinkAttack(Entity e)
+		{
 			return false;
 		}
 	}

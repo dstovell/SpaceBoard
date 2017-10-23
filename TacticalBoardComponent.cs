@@ -9,6 +9,8 @@ public class TacticalBoardComponent : MonoBehaviour
 	public int SizeY = 5;
 	public float SizeScale = 10;
 
+	public long TurnCount = 0;
+
 	public GameObject BoardNodePrefab;
 
 	private float TimeSinceUpdate = 0.0f;
@@ -71,5 +73,6 @@ public class TacticalBoardComponent : MonoBehaviour
 				//Debug.Log("TurnCount=" + this.Board.TurnCount + " " + this.Board.Entites.Count);
 			}
 		}
+		this.TurnCount = TacticalBoard.Manager.Instance.TurnCount;
 	}
 }

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace TacticalBoard
 {
-	public abstract class Brain
+	public abstract class Strategy
 	{
-		public Brain()
+		public Strategy()
 		{
 		}
 
@@ -23,4 +23,4 @@ namespace TacticalBoard
 		public abstract bool OnThinkAttack(Entity e);
 	}
 }
-
+		
