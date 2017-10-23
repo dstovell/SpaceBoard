@@ -6,16 +6,22 @@ namespace TacticalBoard
 	public class SquareGrid : Grid
 	{
 		public GridNode [,] Nodes;
+		public Dictionary<ushort,GridNode> NodeMap;
 
 		public SquareGrid(int x, int y)
 		{
 			this.Nodes = new GridNode[x,y];
+			this.NodeMap = new Dictionary<ushort,GridNode>();
 
+			ushort nextId = 0;
 			for (int dx=0; dx<x; dx++)
 			{
 				for (int dy=0; dy<y; dy++)
 				{
-					this.Nodes[dx,dy] = new GridNode(dx, dy);
+					nextId++;
+					GridNode node = new GridNode(nextId, dx, dy);
+					this.Nodes[dx,dy] = node;
+					this.NodeMap[nextId] = node;
 				}
 			}
 		}
@@ -43,6 +49,11 @@ namespace TacticalBoard
 			}
 
 			return this.Nodes[x,y];
+		}
+
+		public override GridNode GetNode(ushort id)
+		{
+			return this.NodeMap.ContainsKey(id) ? this.NodeMap[id] : null;
 		}
 	}
 }

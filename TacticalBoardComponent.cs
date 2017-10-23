@@ -19,9 +19,12 @@ public class TacticalBoardComponent : MonoBehaviour
 
 	public static TacticalBoardComponent Instance;
 
+	public Dictionary<ushort,TacticalBoardNodeComponent> NodeMap;
+
 	void Awake() 
 	{
 		Instance = this;
+		this.NodeMap = new Dictionary<ushort,TacticalBoardNodeComponent>();
 		TacticalBoard.Manager.Init(this.SizeX, this.SizeY);
 		this.Board = TacticalBoard.Manager.Instance;
 		CreateBoard();
@@ -42,6 +45,22 @@ public class TacticalBoardComponent : MonoBehaviour
 		return new Vector3(this.GetX(x), 0.0f, this.GetY(y));
 	}
 
+	public TacticalBoardNodeComponent GetNode(int x, int y)
+	{
+		TacticalBoard.GridNode node = TacticalBoard.Manager.Instance.Board.GetNode(x, y);
+		if (node == null)
+		{
+			return null;
+		}
+
+		return this.GetNode(node.Id);
+	}
+
+	public TacticalBoardNodeComponent GetNode(ushort id)
+	{
+		return this.NodeMap.ContainsKey(id) ? this.NodeMap[id] : null;
+	}
+
 	void CreateBoard()
 	{
 		if (this.BoardNodePrefab == null)
@@ -55,6 +74,13 @@ public class TacticalBoardComponent : MonoBehaviour
 			{
 				GameObject obj = GameObject.Instantiate(this.BoardNodePrefab, this.transform);
 				obj.transform.SetPositionAndRotation(this.GetPos(x, y), Quaternion.identity);
+
+				TacticalBoard.GridNode node = TacticalBoard.Manager.Instance.Board.GetNode(x, y);
+				TacticalBoardNodeComponent nodeComp = obj.GetComponent<TacticalBoardNodeComponent>();
+				if ((node != null) && (nodeComp != null))
+				{
+					this.NodeMap.Add(node.Id, nodeComp);
+				}
 			}
 		}
 	}

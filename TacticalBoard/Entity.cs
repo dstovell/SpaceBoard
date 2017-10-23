@@ -31,6 +31,14 @@ namespace TacticalBoard
 
 	public class Entity
 	{
+		public enum DeploymentState
+		{
+			None,
+			Deploying,
+			Deployed
+		}
+		public DeploymentState Deployment;
+
 		public ushort Id;
 		public EntityParams Initial = null;
 		public EntityParams Current = null;
@@ -95,6 +103,12 @@ namespace TacticalBoard
 			return false;
 		}
 
+
+		public bool IsDeployed()
+		{
+			return (this.Deployment == DeploymentState.Deployed);
+		}
+
 		public bool RequestDeployment(int x, int y)
 		{
 			if (this.ParentGrid == null)
@@ -128,28 +142,44 @@ namespace TacticalBoard
 
 		public void OnDeploymentRequestComplete(Request r)
 		{
+			this.Deployment = (r.Result == ResultType.Success) ? DeploymentState.Deployed : DeploymentState.None;
 		}
 
 		public void OnDeployment(Request r)
 		{
+			this.Deployment = (r.Result == ResultType.Success) ? DeploymentState.Deployed : DeploymentState.None;
+			if (this.Deployment == DeploymentState.Deployed)
+			{
+				GridNode node = this.ParentGrid.GetNode(r.GridNodeId);
+				if (node != null)
+				{
+					this.ActivateAt(node);
+				}
+			}
 		}
 
 		public bool ActivateAt(int x, int y)
+		{
+			if (this.ParentGrid != null)
+			{
+				return this.ActivateAt( this.ParentGrid.GetNode(x, y) );
+			}
+			return false;
+		}
+
+		public bool ActivateAt(GridNode n)
 		{
 			if (this.Activated)
 			{
 				return false;
 			}
 
-			if (this.ParentGrid != null)
+			if (n == null)
 			{
-				GridNode n = this.ParentGrid.GetNode(x, y);
-				if (n != null)
-				{
-					this.MoveTo(n);
-				}
+				return false;
 			}
-
+				
+			this.MoveTo(n);
 			this.Activated = true;
 			return true;
 		}

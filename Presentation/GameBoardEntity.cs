@@ -5,12 +5,16 @@ public class GameBoardEntity : MonoBehaviour
 {
 	public TacticalBoard.EntityParams Params;
 
+	public ShipMover Mover;
+
 	public TacticalBoard.Entity Entity;
 
 	public int move = 1;
 	public int attack = 1;
 	public int armour = 1;
 	public int shield = 1;
+
+	private bool deployed = false;
 
 	public int X
 	{
@@ -28,8 +32,12 @@ public class GameBoardEntity : MonoBehaviour
 		}
 	}
 
-	// Use this for initialization
-	void Start ()
+	void Awake()
+	{
+		this.Mover = this.GetComponent<ShipMover>();
+	}
+
+	void Start()
 	{
 		this.Params = new TacticalBoard.EntityParams();
 		this.Params.move = this.move;
@@ -67,6 +75,18 @@ public class GameBoardEntity : MonoBehaviour
 
 	void Update ()
 	{
+		if (this.Entity != null)
+		{
+			if (!this.deployed && this.Entity.IsDeployed())
+			{
+				TacticalBoardNodeComponent comp = (this.Entity.Position != null) ? TacticalBoardComponent.Instance.GetNode(this.Entity.Position.Id) : null;
+				if (comp != null)
+				{
+					this.Mover.Warp(comp.transform);
+				}
+				this.deployed = true;
+			}
+		}
 	}
 }
 

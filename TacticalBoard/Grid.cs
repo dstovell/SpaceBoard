@@ -11,8 +11,9 @@ namespace TacticalBoard
 
 	public class GridNode
 	{
-		public GridNode(int dx, int dy)
+		public GridNode(ushort id, int dx, int dy)
 		{
+			this.Id = id;
 			this.x = dx;
 			this.y = dy;
 		}
@@ -42,6 +43,11 @@ namespace TacticalBoard
 		}
 
 		public virtual GridNode GetNode(int x, int y)
+		{
+			return null;
+		}
+
+		public virtual GridNode GetNode(ushort id)
 		{
 			return null;
 		}
