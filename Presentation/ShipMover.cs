@@ -93,8 +93,8 @@ public class ShipMover : MonoBehaviour
 		{
 			if ((this.Entity != null) && this.Entity.IsActive())
 			{
-				float x = TacticalBoardComponent.Instance.GetX(this.Entity.X);
-				float y = TacticalBoardComponent.Instance.GetY(this.Entity.Y);
+				float x = SpaceBoardComponent.Instance.GetX(this.Entity.X);
+				float y = SpaceBoardComponent.Instance.GetY(this.Entity.Y);
 
 				if ((this.lastX != this.Entity.X) || (this.lastY != this.Entity.Y))
 				{
@@ -103,7 +103,7 @@ public class ShipMover : MonoBehaviour
 					this.lastX = this.Entity.X;
 					this.lastY = this.Entity.Y;
 
-					this.MoveTo(TacticalBoardComponent.Instance.GetPos(this.Entity.X, this.Entity.Y));
+					this.MoveTo(SpaceBoardComponent.Instance.GetPos(this.Entity.X, this.Entity.Y));
 					return;
 				}
 			}

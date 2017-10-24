@@ -12,6 +12,7 @@ namespace TacticalBoard
 		public EntityParams(EntityParams p)
 		{
 			this.move = p.move;
+			this.range = p.range;
 			this.attack = p.attack;
 			this.armour = p.armour;
 			this.shield = p.shield;
@@ -21,6 +22,7 @@ namespace TacticalBoard
 		}
 
 		public float move = 1.0f;
+		public float range = 1.0f;
 		public int attack = 1;
 		public int armour = 1;
 		public int shield = 1;
@@ -39,7 +41,8 @@ namespace TacticalBoard
 		}
 		public DeploymentState Deployment;
 
-		public ushort Id;
+		public uint Id;
+		public uint PlayerId;
 		public EntityParams Initial = null;
 		public EntityParams Current = null;
 		public Grid ParentGrid = null;
@@ -49,9 +52,10 @@ namespace TacticalBoard
 
 		private float accumulatedMove = 0.0f;
 
-		public Entity(ushort id, Grid grid, EntityParams ep, Brain br = null)
+		public Entity(uint id, uint playerId, Grid grid, EntityParams ep, Brain br = null)
 		{
 			this.Id = id;
+			this.PlayerId = playerId;
 			this.ParentGrid = grid;
 			this.Initial = ep;
 			this.CurrentBrain = br;

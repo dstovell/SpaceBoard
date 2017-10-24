@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TacticalBoardNodeComponent : MonoBehaviour 
+public class SpaceBoardNodeComponent : MonoBehaviour 
 {
 	public ushort Id;
 

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ShipUI : MonoBehaviour 
 {
+	public GameObject Obj;
 	public GameBoardEntity Entity;
 	public ShipMover Mover;
 	public Transform Warper;
@@ -11,9 +12,10 @@ public class ShipUI : MonoBehaviour
 	// Use this for initialization
 	void Awake() 
 	{
-		if (this.Entity == null)
+		if (this.Obj != null)
 		{
-			this.Entity = this.Mover.GetComponent<GameBoardEntity>();	
+			this.Entity = this.Obj.GetComponent<GameBoardEntity>();
+			this.Mover = this.Obj.GetComponent<ShipMover>();	
 		}
 	}
 

@@ -3,13 +3,16 @@ using System.Collections;
 
 public class GameBoardEntity : MonoBehaviour
 {
+	public uint EntityId;
+	public uint PlayerId;
 	public TacticalBoard.EntityParams Params;
-
+	public Sprite CardImage;
 	public ShipMover Mover;
 
 	public TacticalBoard.Entity Entity;
 
-	public int move = 1;
+	public float move = 1;
+	public float range = 1;
 	public int attack = 1;
 	public int armour = 1;
 	public int shield = 1;
@@ -35,19 +38,11 @@ public class GameBoardEntity : MonoBehaviour
 	void Awake()
 	{
 		this.Mover = this.GetComponent<ShipMover>();
+		this.Params = new TacticalBoard.EntityParams();
 	}
 
 	void Start()
 	{
-		this.Params = new TacticalBoard.EntityParams();
-		this.Params.move = this.move;
-		this.Params.attack = this.attack;
-		this.Params.armour = this.armour;
-		this.Params.shield = this.shield;
-
-		TacticalBoard.ChargeForwardBrain br = new TacticalBoard.ChargeForwardBrain();
-
-		this.Entity = TacticalBoard.Manager.Instance.AddEntity(this.Params, br);
 	}
 
 	public bool RequestDeployment(TacticalBoard.GridNode node)
@@ -73,13 +68,31 @@ public class GameBoardEntity : MonoBehaviour
 		return (this.Entity != null) ? this.Entity.IsActive() : false;
 	}
 
+	private void SetParams(TacticalBoard.EntityParams p)
+	{
+		if (p == null)
+		{
+			return;
+		}
+
+		this.Params = p;
+		this.move = this.Params.move;
+		this.range = this.Params.range;
+		this.attack = this.Params.attack;
+		this.armour = this.Params.armour;
+		this.shield = this.Params.shield;
+	}
+
 	void Update ()
 	{
 		if (this.Entity != null)
 		{
+			this.EntityId = this.Entity.Id;
+			this.SetParams(this.Entity.Current);
+
 			if (!this.deployed && this.Entity.IsDeployed())
 			{
-				TacticalBoardNodeComponent comp = (this.Entity.Position != null) ? TacticalBoardComponent.Instance.GetNode(this.Entity.Position.Id) : null;
+				SpaceBoardNodeComponent comp = (this.Entity.Position != null) ? SpaceBoardComponent.Instance.GetNode(this.Entity.Position.Id) : null;
 				if (comp != null)
 				{
 					this.Mover.Warp(comp.transform);

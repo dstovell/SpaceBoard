@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TacticalBoardComponent : MonoBehaviour 
+public class SpaceBoardComponent : MonoBehaviour 
 {
 	public float SecondsPerTurn = 1.0f;
 	public int SizeX = 4;
@@ -17,14 +17,14 @@ public class TacticalBoardComponent : MonoBehaviour
 
 	private TacticalBoard.Manager Board;
 
-	public static TacticalBoardComponent Instance;
+	public static SpaceBoardComponent Instance;
 
-	public Dictionary<ushort,TacticalBoardNodeComponent> NodeMap;
+	public Dictionary<ushort,SpaceBoardNodeComponent> NodeMap;
 
 	void Awake() 
 	{
 		Instance = this;
-		this.NodeMap = new Dictionary<ushort,TacticalBoardNodeComponent>();
+		this.NodeMap = new Dictionary<ushort,SpaceBoardNodeComponent>();
 		TacticalBoard.Manager.Init(this.SizeX, this.SizeY);
 		this.Board = TacticalBoard.Manager.Instance;
 		CreateBoard();
@@ -45,7 +45,7 @@ public class TacticalBoardComponent : MonoBehaviour
 		return new Vector3(this.GetX(x), 0.0f, this.GetY(y));
 	}
 
-	public TacticalBoardNodeComponent GetNode(int x, int y)
+	public SpaceBoardNodeComponent GetNode(int x, int y)
 	{
 		TacticalBoard.GridNode node = TacticalBoard.Manager.Instance.Board.GetNode(x, y);
 		if (node == null)
@@ -56,7 +56,7 @@ public class TacticalBoardComponent : MonoBehaviour
 		return this.GetNode(node.Id);
 	}
 
-	public TacticalBoardNodeComponent GetNode(ushort id)
+	public SpaceBoardNodeComponent GetNode(ushort id)
 	{
 		return this.NodeMap.ContainsKey(id) ? this.NodeMap[id] : null;
 	}
@@ -76,7 +76,7 @@ public class TacticalBoardComponent : MonoBehaviour
 				obj.transform.SetPositionAndRotation(this.GetPos(x, y), Quaternion.identity);
 
 				TacticalBoard.GridNode node = TacticalBoard.Manager.Instance.Board.GetNode(x, y);
-				TacticalBoardNodeComponent nodeComp = obj.GetComponent<TacticalBoardNodeComponent>();
+				SpaceBoardNodeComponent nodeComp = obj.GetComponent<SpaceBoardNodeComponent>();
 				if ((node != null) && (nodeComp != null))
 				{
 					this.NodeMap.Add(node.Id, nodeComp);

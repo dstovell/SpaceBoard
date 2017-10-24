@@ -12,8 +12,13 @@ namespace TacticalBoard
 		public Grid Board;
 
 		public List<Entity> Entites;
+		public Dictionary<uint, Entity> EntityMap;
 
-		ushort EntityCount = 0;
+		public List<Player> Players;
+		public Dictionary<uint, Player> PlayerMap;
+
+		uint EntityCount = 0;
+		private Dictionary<uint, uint> EntityCounts;
 
 		public static void Init(int x, int y)
 		{
@@ -40,21 +45,66 @@ namespace TacticalBoard
 			}
 		}
 
-		public Entity AddEntity(EntityParams ep, Brain br = null)
+		public uint GenerateEntityId(uint playerId)
 		{
-			this.EntityCount++;
-			Entity e = new Entity(this.EntityCount, this.Board, ep, br);
+			this.EntityCounts[playerId]++;
+			uint newId = this.EntityCounts[playerId];
+
+			string hashableString = string.Format("{0}_{1}", playerId, newId);
+			return (uint)hashableString.GetHashCode();
+		}
+
+		public Entity AddEntity(uint playerId, EntityParams ep, Brain br = null)
+		{
+			uint newId = this.GenerateEntityId(playerId);
+
+			Entity e = new Entity(newId, playerId, this.Board, ep, br);
 			this.Entites.Add(e);
+			this.Entites.Sort(this.EntityComparer);
+			this.EntityMap[newId] = e;
 			return e;
+		}
+
+		public Player AddPlayer(uint id, Hashtable parameters = null)
+		{
+			Player p = new Player(id, parameters);
+			this.Players.Add(p);
+			this.Players.Sort(this.PlayerComparer);
+			this.PlayerMap[id] = p;
+			this.EntityCounts[id] = 0;
+			return p;
+		}
+
+		public Player GetPlayer(uint id)
+		{
+			return this.PlayerMap.ContainsKey(id) ? this.PlayerMap[id] : null;
+		}
+
+		private int EntityComparer(Entity a, Entity b)
+		{
+			//Should this be the other way?
+			return ((int)a.Id - (int)b.Id);
+		}
+
+		private int PlayerComparer(Player a, Player b)
+		{
+			//Should this be the other way?
+			return ((int)a.Id - (int)b.Id);
 		}
 
 		public Manager(int x, int y)
 		{
 			this.TurnCount = 0;
+			this.EntityCounts = new Dictionary<uint,uint>();
 			this.EntityCount = 0;
 
 			this.Board = new SquareGrid(x, y);
+
+			this.Players = new List<Player>();
+			this.PlayerMap = new Dictionary<uint,Player>();
+
 			this.Entites = new List<Entity>();
+			this.EntityMap = new Dictionary<uint,Entity>();
 		}
 	}
 }
