@@ -30,6 +30,31 @@ public class SpaceBoardComponent : MonoBehaviour
 		CreateBoard();
 	}
 
+	public TacticalBoard.Player CreatePlayer(uint playerId)
+	{
+		return TacticalBoard.Manager.Instance.AddPlayer(playerId);
+	}
+
+	public void CreateEntity(uint playerId, string id, Vector3 pos)
+	{
+		SpaceBoardEntityData data = SpaceBoardEntityManager.Instance.GetEntityData(id);
+		if (data == null)
+		{
+			return;
+		}
+
+		TacticalBoard.ChargeForwardBrain br = new TacticalBoard.ChargeForwardBrain();
+
+		TacticalBoard.Entity e = TacticalBoard.Manager.Instance.AddEntity(playerId, data.Params, br);
+
+		GameObject obj = SpaceBoardEntityManager.Instance.CreateGameBoardEntity(id, pos, Quaternion.identity);
+		obj.transform.localScale = new Vector3(data.PrefabScale, data.PrefabScale, data.PrefabScale);
+
+		GameBoardEntity comp = obj.GetComponent<GameBoardEntity>();
+		comp.PlayerId = playerId;
+		comp.Entity = e;
+	}
+
 	public float GetX(int x)
 	{
 		return (float)(x - this.SizeX/2) * this.SizeScale;
