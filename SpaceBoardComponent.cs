@@ -38,7 +38,7 @@ public class SpaceBoardComponent : MonoBehaviour
 	public void CreateEntity(TacticalBoard.PlayerTeam team, uint playerId, string id, int warpToX, int warpToY)
 	{
 		SpaceBoardEntityData data = SpaceBoardEntityManager.Instance.GetEntityData(id);
-		Debug.Log("CreateEntity team=" + team.ToString() + " playerId=" + playerId + " id=" + id + " warpTo=" + warpToX + "," + warpToY + " data=" + data);
+		Debug.LogError("CreateEntity team=" + team.ToString() + " playerId=" + playerId + " id=" + id + " warpTo=" + warpToX + "," + warpToY + " data=" + data);
 		if (data == null)
 		{
 			return;

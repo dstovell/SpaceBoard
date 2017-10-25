@@ -116,6 +116,8 @@ namespace TacticalBoard
 			this.Initial = ep;
 			this.CurrentBrain = br;
 
+			this.Team = team;
+
 			this.Searcher = this.ParentGrid.CreateSearcher();
 			this.Friendlies = new Dictionary<uint,EntityAssesment>();
 			this.Hostiles = new Dictionary<uint,EntityAssesment>();
@@ -218,7 +220,7 @@ namespace TacticalBoard
 
 		public void OnDeploymentRequestComplete(Request r)
 		{
-			this.Deployment = (r.Result == ResultType.Success) ? DeploymentState.Deployed : DeploymentState.None;
+			this.Deployment = (r.Result == ResultType.Success) ? DeploymentState.Deploying : DeploymentState.None;
 		}
 
 		public void OnDeployment(Request r)

@@ -95,7 +95,9 @@ public class GameBoardEntity : MonoBehaviour
 				SpaceBoardNodeComponent comp = (this.Entity.Position != null) ? SpaceBoardComponent.Instance.GetNode(this.Entity.Position.Id) : null;
 				if (comp != null)
 				{
-					this.Mover.Warp(comp.transform);
+					Quaternion rot = (this.Entity.Team == TacticalBoard.PlayerTeam.TeamA) ? Quaternion.identity : Quaternion.LookRotation(new Vector3(0, 0, -1));
+
+					this.Mover.Warp(comp.transform.position, rot);
 				}
 				this.deployed = true;
 			}
