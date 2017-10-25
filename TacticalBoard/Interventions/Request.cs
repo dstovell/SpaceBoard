@@ -11,6 +11,7 @@ namespace TacticalBoard
 
 		public void HandleRequestComplete()
 		{
+			TacticalBoard.Debug.Log("HandleRequestComplete " + this.Type.ToString());
 			if (this.OnRequestComplete != null)
 			{
 				this.OnRequestComplete(this);
@@ -24,6 +25,7 @@ namespace TacticalBoard
 
 		public void HandleRequestAction()
 		{
+			TacticalBoard.Debug.Log("HandleRequestAction " + this.Type.ToString());
 			if ((this.OnRequestAction != null) && (this.Result == ResultType.Success))
 			{
 				this.OnRequestAction(this);
@@ -37,6 +39,7 @@ namespace TacticalBoard
 			this.TurnRequested = turn;
 			this.EntityId = entityId;
 			this.GridNodeId = gridNodeId;
+			TacticalBoard.Debug.Log("Request " + this.Type.ToString() + " turn=" + " entityId=" + entityId + " gridNodeId=" + gridNodeId);
 		}
 
 		public long TurnRequested;
