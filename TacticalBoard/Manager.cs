@@ -25,14 +25,16 @@ namespace TacticalBoard
 			if (TacticalBoard.Manager.Instance == null)
 			{
 				TacticalBoard.Manager.Instance = new TacticalBoard.Manager(x, y);
+				TacticalBoard.InterventionsManager.Init(flow);
 			}
-
-			TacticalBoard.InterventionsManager.Init(flow);
 		}
 
 		public void Update()
 		{
 			this.TurnCount++;
+
+			InterventionsManager.Instance.Update(this.TurnCount);
+
 			this.Board.UpdatePathfinding(this.Entites);
 
 			for (int i=0; i<this.Entites.Count; i++)

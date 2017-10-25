@@ -25,7 +25,7 @@ public class SpaceBoardComponent : MonoBehaviour
 	{
 		Instance = this;
 		this.NodeMap = new Dictionary<ushort,SpaceBoardNodeComponent>();
-		TacticalBoard.Manager.Init(this.SizeX, this.SizeY);
+		TacticalBoard.Manager.Init(this.SizeX, this.SizeY, TacticalBoard.InterventionsManager.Flow.Local);
 		this.Board = TacticalBoard.Manager.Instance;
 		CreateBoard();
 	}
