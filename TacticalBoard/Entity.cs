@@ -73,6 +73,14 @@ namespace TacticalBoard
 			this.turnsToKill = this.turnsToDefeatShield + this.turnsToDefeatArmour;
 
 			this.totalTurnsToKill = this.turnsTillRange + this.turnsToKill;
+
+			if (this.pathTo != null)
+			{
+				for (int i=0; i<this.pathTo.Count; i++)
+				{
+					GridNode gn = this.pathTo[i];
+				}
+			}
 		}
 
 		public float GetDistance(Entity us, Entity them)
@@ -118,13 +126,12 @@ namespace TacticalBoard
 
 			this.Team = team;
 
-			this.Searcher = this.ParentGrid.CreateSearcher();
+			this.Searcher = this.ParentGrid.CreateSearcher(true, false, false);
 			this.Friendlies = new Dictionary<uint,EntityAssesment>();
 			this.Hostiles = new Dictionary<uint,EntityAssesment>();
 			this.Neutrals = new Dictionary<uint,EntityAssesment>();
 
 			this.Reset();
-			TacticalBoard.Debug.Log("Entity Create " + br);
 		}
 
 		public int X
@@ -361,7 +368,7 @@ namespace TacticalBoard
 			for (int i=0; i<entites.Count; i++)
 			{
 				Entity e = entites[i];
-				if (e.Id == this.Id)
+				if (!e.IsActive() || (e.Id == this.Id))
 				{
 					continue;
 				}

@@ -110,8 +110,8 @@ public class ShipMover : MonoBehaviour
 
 				if ((this.lastX != this.Entity.X) || (this.lastY != this.Entity.Y))
 				{
-					Debug.Log("Need to move grid from " + this.lastX + " " + this.lastY + " to " + this.Entity.X + " " + this.Entity.Y);
-					Debug.Log("Need to move position from " + this.transform.position.x + " " + this.transform.position.y + " to " + x + " " + y);
+					//Debug.Log("Need to move grid from " + this.lastX + " " + this.lastY + " to " + this.Entity.X + " " + this.Entity.Y);
+					//Debug.Log("Need to move position from " + this.transform.position.x + " " + this.transform.position.y + " to " + x + " " + y);
 
 					this.lastX = this.Entity.X;
 					this.lastY = this.Entity.Y;

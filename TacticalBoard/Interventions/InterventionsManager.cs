@@ -5,6 +5,8 @@ namespace TacticalBoard
 {
 	public class InterventionsManager 
 	{
+		public static bool Verbose = false;
+
 		public enum Flow
 		{
 			Local,
@@ -45,7 +47,10 @@ namespace TacticalBoard
 				for (int i=0; i<this.Requests.Count; i++)
 				{
 					Request r = this.Requests[i];
-					//Debug.Log("Request RequestId=" + r.RequestId + " EntityId=" + r.EntityId + " Result=" + r.Result.ToString());
+					if (InterventionsManager.Verbose)
+					{
+						Debug.Log("Request RequestId=" + r.RequestId + " EntityId=" + r.EntityId + " Result=" + r.Result.ToString());
+					}
 					if ((r.Result == ResultType.Pending) && (r.TurnRequested <= (turnCount - this.LocalTurnWait)))
 					{
 						r.Result = ResultType.Success;

@@ -14,7 +14,7 @@ namespace TacticalBoard
 		}
 		private EpPathFinding.JumpPointParam jumpPointParam;
 
-		public SquareGridSearcher(SquareGrid grid, bool allowEndNodeUnWalkable = true, bool crossCorner = true, bool crossAdjacentPoint = true)
+		public SquareGridSearcher(SquareGrid grid, bool allowEndNodeUnWalkable = true, bool crossCorner = false, bool crossAdjacentPoint = false)
 		{
 			this.ParentGrid = grid;
 			this.jumpPointParam = new EpPathFinding.JumpPointParam(grid.SearchGrid, allowEndNodeUnWalkable, crossCorner, crossAdjacentPoint);
@@ -22,7 +22,7 @@ namespace TacticalBoard
 
 		public override List<GridNode> GetPath(GridNode n1, GridNode n2)
 		{
-			this.jumpPointParam.SetEndPoints(n1.gridPos, n2.gridPos);
+			this.jumpPointParam.Reset(n1.gridPos, n2.gridPos);
 			return squareGrid.TranslateNodes( EpPathFinding.JumpPointFinder.FindPath(this.jumpPointParam) );
 		}
 	}
@@ -94,9 +94,42 @@ namespace TacticalBoard
 		public List<GridNode> TranslateNodes(List<EpPathFinding.GridPos> nodes)
 		{
 			List<GridNode> outNodes = new List<GridNode>();
+			GridNode lastNode = null;
 			for (int i=0; i<nodes.Count; i++)
 			{
-				outNodes.Add(this.TranslateNode(nodes[i]));
+				GridNode node = this.TranslateNode(nodes[i]);
+				if (lastNode != null)
+				{
+					int dx = node.x - lastNode.x;
+					int dy = node.y - lastNode.y;
+					int absX = (int)System.Math.Abs(dx);
+					int absY = (int)System.Math.Abs(dy);
+					int maxDim = System.Math.Max(absX, absY);
+
+					int dirX = (dx != 0) ? (dx/absX) : 0;
+					int dirY = (dy != 0) ? (dy/absY) : 0;
+
+
+					for (int j=1; j<maxDim; j++)
+					{
+						int nx = lastNode.x + j*dirX;
+						int ny = lastNode.y + j*dirY;
+
+						outNodes.Add(this.GetNode(nx, ny));
+						Debug.Log("Add " + nx + "," + ny);
+
+						if ((nx == node.x) && (ny == node.y))
+						{
+							break;
+						}
+					}
+				}
+				else
+				{
+					outNodes.Add(node);
+				}
+
+				lastNode = node;
 			}
 			return outNodes;
 		}
