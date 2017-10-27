@@ -17,18 +17,49 @@ namespace TacticalBoard
 			this.x = dx;
 			this.y = dy;
 			this.point = new AStar.Point(this.x, this.y);
+			this.entitiesIn = new List<Entity>();
+		}
+
+		public bool OnEnter(Entity e)
+		{
+			if (!this.entitiesIn.Contains(e))
+			{
+				this.entitiesIn.Add(e);
+				return true;
+			}
+			return false;
+		}
+
+		public bool OnExit(Entity e)
+		{
+			if (this.entitiesIn.Contains(e))
+			{
+				this.entitiesIn.Remove(e);
+				return true;
+			}
+			return false;
 		}
 
 		public bool IsWalkable(Entity forEntity)
 		{
-			return !this.occupied;
+			//TODO: FIX ME!
+			//return (!this.occupied || this.entitiesIn.Contains(forEntity));
+			return true;
 		}
 
 		public ushort Id;
 		public int x;
 		public int y;
 
-		public bool occupied;
+		public bool occupied
+		{
+			get
+			{
+				return (entitiesIn.Count > 0);
+			}
+		}
+
+		public List<Entity> entitiesIn;
 
 		public AStar.Point point;
 	}

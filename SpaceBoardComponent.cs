@@ -44,7 +44,7 @@ public class SpaceBoardComponent : MonoBehaviour
 			return;
 		}
 
-		TacticalBoard.ChargeForwardBrain br = new TacticalBoard.ChargeForwardBrain();
+		TacticalBoard.CloseAndAttackBrain br = new TacticalBoard.CloseAndAttackBrain();
 
 		TacticalBoard.GridNode nodeToWarpTo = TacticalBoard.Manager.Instance.Board.GetNode(warpToX, warpToY);
 

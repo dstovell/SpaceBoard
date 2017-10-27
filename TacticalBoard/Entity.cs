@@ -65,7 +65,7 @@ namespace TacticalBoard
 		public int pathDistance;
 		public List<GridNode> pathTo;
 		public GridNode stepTowards;
-		public float range;
+		public float rangeTo;
 
 		public int turnsToReach;
 		public int turnsTillRange;
@@ -74,6 +74,7 @@ namespace TacticalBoard
 		public int turnsToDefeatArmour;
 		public int turnsToKill;
 
+		public bool inRange;
 		public bool isHostile;
 		public bool isFriendly;
 
@@ -94,24 +95,35 @@ namespace TacticalBoard
 			this.pathDistance = (this.pathTo != null) ? (this.pathTo.Count - 1) : -1;
 			this.stepTowards = (this.pathDistance > 0) ? this.pathTo[0] : null;
 
-			this.range = Math.Distance(us, them);
+			float maxRange = us.Current.range;
+
+			this.rangeTo = Math.Distance(us, them);
 			this.turnsToReach = us.TurnsToTravel(this.pathTo);
 
 			this.turnsToDefeatShield = (int)System.Math.Ceiling( (float)them.Current.shield - (float)us.Current.attack );
 			this.turnsToDefeatArmour = (int)System.Math.Ceiling( (float)them.Current.armour - (float)us.Current.attack );
 			this.turnsToKill = this.turnsToDefeatShield + this.turnsToDefeatArmour;
 
-			this.totalTurnsToKill = this.turnsTillRange + this.turnsToKill;
-
-			Debug.Log(" pathDistance=" + this.pathDistance);
+			this.turnsTillRange = -1;
 			if (this.pathTo != null)
 			{
 				for (int i=0; i<this.pathTo.Count; i++)
 				{
 					GridNode gn = this.pathTo[i];
-					Debug.Log("  " + gn.x + "," + gn.y);
+					float rangeAt = Math.Distance(gn.x, gn.y, them.X, them.Y);
+					if (rangeAt <= maxRange)
+					{
+						this.turnsTillRange = i + 1;
+						break;
+					}
 				}
 			}
+
+			this.totalTurnsToKill = this.turnsTillRange + this.turnsToKill;
+
+			this.isHostile = us.IsTeamHostile(them.Team);
+			this.isFriendly = us.IsTeamFriendly(them.Team);
+			this.inRange = (this.rangeTo <= maxRange);
 		}
 	}
 
@@ -133,6 +145,7 @@ namespace TacticalBoard
 		public Grid ParentGrid = null;
 		public GridNode Position = null;
 		public bool Activated = false;
+		public long TurnActivated = -1;
 		public Brain CurrentBrain = null;
 		public GridSearcher Searcher = null;
 
@@ -171,6 +184,14 @@ namespace TacticalBoard
 			get
 			{
 				return (this.Current != null) ? this.Current.y : 0;
+			}
+		}
+
+		public long TurnCount
+		{
+			get
+			{
+				return Manager.Instance.TurnCount;
 			}
 		}
 
@@ -244,7 +265,7 @@ namespace TacticalBoard
 				return false;
 			}
 
-			Request r = new Request(InterventionType.Deployment, Manager.Instance.TurnCount, this.Id, node.Id);
+			Request r = new Request(InterventionType.Deployment, this.TurnCount, this.Id, node.Id);
 			r.OnRequestComplete = this.OnDeploymentRequestComplete;
 			r.OnRequestAction = this.OnDeployment;
 
@@ -294,14 +315,31 @@ namespace TacticalBoard
 				
 			this.MoveTo(n);
 			this.Activated = true;
+			this.TurnActivated = this.TurnCount;
 			return true;
 		}
 
 		public bool MoveTo(GridNode n)
 		{
+			if (n == null)
+			{
+				return false;
+			}
+
+			if (n.occupied)
+			{
+				return false;
+			}
+
+			if (this.Position != null)
+			{
+				this.Position.OnExit(this);
+			}
+
 			this.Position = n;
+			this.Position.OnEnter(this);
 			TacticalBoard.Debug.Log("Entity.MoveTo " + this.Position.x + "," + this.Position.y);
-			if ((this.Position != null) && (this.Current != null))
+			if (this.Current != null)
 			{
 				this.Current.x = this.Position.x;
 				this.Current.y = this.Position.y;
@@ -318,7 +356,7 @@ namespace TacticalBoard
 
 		public bool IsActive()
 		{
-			return (IsInitialized() && this.Activated);
+			return (IsInitialized() && this.Activated && (this.TurnCount > this.TurnActivated));
 		}
 
 		public bool CanMove()

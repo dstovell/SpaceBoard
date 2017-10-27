@@ -40,19 +40,28 @@ namespace TacticalBoard
 			for (int i=0; i<this.Entites.Count; i++)
 			{
 				Entity e = this.Entites[i];
-				e.UpdateAssements(this.Entites);
+				if (e.IsActive())
+				{
+					e.UpdateAssements(this.Entites);
+				}
 			}
 
 			for (int i=0; i<this.Entites.Count; i++)
 			{
 				Entity e = this.Entites[i];
-				e.UpdateMove();
+				if (e.IsActive())
+				{
+					e.UpdateMove();
+				}
 			}
 
 			for (int i=0; i<this.Entites.Count; i++)
 			{
 				Entity e = this.Entites[i];
-				e.UpdateAttack();
+				if (e.IsActive())
+				{
+					e.UpdateAttack();
+				}
 			}
 		}
 

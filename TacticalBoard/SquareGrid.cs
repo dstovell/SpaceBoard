@@ -90,13 +90,18 @@ namespace TacticalBoard
 			return this.NodeMap.ContainsKey(id) ? this.NodeMap[id] : null;
 		}
 
-		public List<GridNode> TranslateNodes(LinkedList<GridNode> path)
+		public List<GridNode> TranslateNodes(LinkedList<GridNode> path, bool excludeStartNode = true)
 		{
 			List<GridNode> outNodes = new List<GridNode>();
 			LinkedListNode<GridNode> front = path.First;
+			bool firstNode = true;
 			while(front != null)
 			{
-				outNodes.Add(front.Value);
+				if (!excludeStartNode || !firstNode)
+				{
+					outNodes.Add(front.Value);
+				}
+				firstNode = false;
         		path.RemoveFirst();
         		front = path.First;
         	}
