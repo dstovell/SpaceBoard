@@ -20,14 +20,23 @@ namespace TacticalBoard
 
 		public override List<GridNode> GetPath(GridNode n1, GridNode n2, Entity entityMoving)
 		{
-			LinkedList<GridNode> path = squareGrid.aStar.Search(n1.point, n2.point, entityMoving);
+			this.From = n1;
+			this.To = n2;
+			this.EntityMoving = entityMoving;
+
+			LinkedList<GridNode> path = squareGrid.aStar.Search(this.From.point, this.To.point, this);
+
+			this.From = null;
+			this.To = null;
+			this.EntityMoving = null;
+
 			return squareGrid.TranslateNodes(path);
 		}
 	}
 
 	public class SquareGrid : Grid
 	{
-		public AStar.SpatialAStar<GridNode, Entity> aStar;
+		public AStar.SpatialAStar<GridNode, SquareGridSearcher> aStar;
 		public GridNode [,] Nodes;
 		public Dictionary<ushort,GridNode> NodeMap;
 		public int X;
@@ -52,7 +61,7 @@ namespace TacticalBoard
 				}
 			}
 
-			this.aStar = new AStar.SpatialAStar<GridNode, Entity>(this.Nodes); 
+			this.aStar = new AStar.SpatialAStar<GridNode, SquareGridSearcher>(this.Nodes); 
 		}
 
 		public override GridSearcher CreateSearcher()

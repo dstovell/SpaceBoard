@@ -9,7 +9,8 @@ namespace TacticalBoard
 		Warp
 	}
 
-	public class GridNode : AStar.IPathNode<Entity>
+	//TODO: Create SquareGridNode and move pathfinding to there
+	public class GridNode : AStar.IPathNode<SquareGridSearcher>
 	{
 		public GridNode(ushort id, int dx, int dy)
 		{
@@ -40,11 +41,9 @@ namespace TacticalBoard
 			return false;
 		}
 
-		public bool IsWalkable(Entity forEntity)
+		public bool IsWalkable(SquareGridSearcher searcher)
 		{
-			//TODO: FIX ME!
-			//return (!this.occupied || this.entitiesIn.Contains(forEntity));
-			return true;
+			return (!this.occupied || (this == searcher.To) || (this == searcher.From) || this.entitiesIn.Contains(searcher.EntityMoving));
 		}
 
 		public ushort Id;
@@ -67,6 +66,11 @@ namespace TacticalBoard
 	public class GridSearcher
 	{
 		public Grid ParentGrid;
+
+		//Current Search
+		public GridNode From;
+		public GridNode To;
+		public Entity EntityMoving;
 
 		public virtual List<GridNode> GetPath(GridNode n1, GridNode n2, Entity entityMoving)
 		{
