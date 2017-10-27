@@ -17,7 +17,6 @@ namespace TacticalBoard
 		public List<Player> Players;
 		public Dictionary<uint, Player> PlayerMap;
 
-		uint EntityCount = 0;
 		private Dictionary<uint, uint> EntityCounts;
 
 		public static void Init(int x, int y, InterventionsManager.Flow flow = InterventionsManager.Flow.Local)
@@ -116,7 +115,6 @@ namespace TacticalBoard
 		{
 			this.TurnCount = 0;
 			this.EntityCounts = new Dictionary<uint,uint>();
-			this.EntityCount = 0;
 
 			this.Board = new SquareGrid(x, y);
 

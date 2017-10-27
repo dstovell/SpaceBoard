@@ -15,7 +15,7 @@ public class SpaceBoardComponent : MonoBehaviour
 
 	private float TimeSinceUpdate = 0.0f;
 
-	private TacticalBoard.Manager Board;
+	//private TacticalBoard.Manager Board;
 
 	public static SpaceBoardComponent Instance;
 
@@ -26,7 +26,7 @@ public class SpaceBoardComponent : MonoBehaviour
 		Instance = this;
 		this.NodeMap = new Dictionary<ushort,SpaceBoardNodeComponent>();
 		TacticalBoard.Manager.Init(this.SizeX, this.SizeY, TacticalBoard.InterventionsManager.Flow.Local);
-		this.Board = TacticalBoard.Manager.Instance;
+		//this.Board = TacticalBoard.Manager.Instance;
 		CreateBoard();
 	}
 

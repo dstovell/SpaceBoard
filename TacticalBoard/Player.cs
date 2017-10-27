@@ -22,7 +22,7 @@ namespace TacticalBoard
 		public uint Id;
 		public PlayerTeam Team;
 
-		Hashtable Parameters;
+		public Hashtable Parameters;
 	}
 }
 
