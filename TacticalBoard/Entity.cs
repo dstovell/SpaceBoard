@@ -411,7 +411,7 @@ namespace TacticalBoard
 			bool moved = false;
 			if (this.CurrentBrain != null)
 			{
-				moved = this.CurrentBrain.ThinkMove(this);
+				moved = this.CurrentBrain.ThinkMove(this, this.Friendlies, this.Hostiles, this.Neutrals);
 			}
 
 			return moved;
@@ -422,7 +422,7 @@ namespace TacticalBoard
 			bool attacked = false;
 			if (this.CurrentBrain != null)
 			{
-				attacked = this.CurrentBrain.ThinkAttack(this);
+				attacked = this.CurrentBrain.ThinkAttack(this, this.Friendlies, this.Hostiles, this.Neutrals);
 			}
 
 			return attacked;

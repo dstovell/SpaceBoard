@@ -9,18 +9,18 @@ namespace TacticalBoard
 		{
 		}
 
-		public bool ThinkMove(Entity e)
+		public bool ThinkMove(Entity e, Dictionary<uint,EntityAssesment> friendlies, Dictionary<uint,EntityAssesment> hostiles, Dictionary<uint,EntityAssesment> neutrals)
 		{
-			return this.OnThinkMove(e);
+			return this.OnThinkMove(e, friendlies, hostiles, neutrals);
 		}
 
-		public bool ThinkAttack(Entity e)
+		public bool ThinkAttack(Entity e, Dictionary<uint,EntityAssesment> friendlies, Dictionary<uint,EntityAssesment> hostiles, Dictionary<uint,EntityAssesment> neutrals)
 		{
-			return this.OnThinkAttack(e);
+			return this.OnThinkAttack(e, friendlies, hostiles, neutrals);
 		}
 
-		public abstract bool OnThinkMove(Entity e);
-		public abstract bool OnThinkAttack(Entity e);
+		public abstract bool OnThinkMove(Entity e, Dictionary<uint,EntityAssesment> friendlies, Dictionary<uint,EntityAssesment> hostiles, Dictionary<uint,EntityAssesment> neutrals);
+		public abstract bool OnThinkAttack(Entity e, Dictionary<uint,EntityAssesment> friendlies, Dictionary<uint,EntityAssesment> hostiles, Dictionary<uint,EntityAssesment> neutrals);
 	}
 }
 

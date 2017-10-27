@@ -5,7 +5,7 @@ namespace TacticalBoard
 {
 	public class ChargeForwardBrain : Brain
 	{
-		public override bool OnThinkMove(Entity e)
+		public override bool OnThinkMove(Entity e, Dictionary<uint,EntityAssesment> friendlies, Dictionary<uint,EntityAssesment> hostiles, Dictionary<uint,EntityAssesment> neutrals)
 		{
 			if (e.GetMove() > 0)
 			{
@@ -21,7 +21,7 @@ namespace TacticalBoard
 			return false;
 		}
 
-		public override bool OnThinkAttack(Entity e)
+		public override bool OnThinkAttack(Entity e, Dictionary<uint,EntityAssesment> friendlies, Dictionary<uint,EntityAssesment> hostiles, Dictionary<uint,EntityAssesment> neutrals)
 		{
 			return false;
 		}
