@@ -105,8 +105,8 @@ public class ShipMover : MonoBehaviour
 		{
 			if (this.IsActive())
 			{
-				float x = SpaceBoardComponent.Instance.GetX(this.Entity.X);
-				float y = SpaceBoardComponent.Instance.GetY(this.Entity.Y);
+				//float x = SpaceBoardComponent.Instance.GetX(this.Entity.X);
+				//float y = SpaceBoardComponent.Instance.GetY(this.Entity.Y);
 
 				if ((this.lastX != this.Entity.X) || (this.lastY != this.Entity.Y))
 				{

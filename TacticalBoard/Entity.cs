@@ -5,11 +5,32 @@ namespace TacticalBoard
 {
 	public class EntityParams
 	{
+		public enum DamageType
+		{
+			Kinetic,
+			Explosive,
+			Electrical,
+			Light
+		}
+
+		public enum LightType
+		{
+			None,
+			Arc,
+			Solar,
+			Void
+		}
+
 		public EntityParams()
 		{
 		}
 
 		public EntityParams(EntityParams p)
+		{
+			this.Copy(p);
+		}
+
+		public void Copy(EntityParams p)
 		{
 			this.move = p.move;
 			this.range = p.range;
@@ -17,15 +38,23 @@ namespace TacticalBoard
 			this.armour = p.armour;
 			this.shield = p.shield;
 
+			this.attackType = p.attackType;
+			this.attackLightType = p.attackLightType;
+			this.sheildLightType = p.sheildLightType;
+
 			this.x = p.x;
 			this.y = p.y;
 		}
 
-		public float move = 1.0f;
+		public int move = 1;
 		public float range = 1.0f;
 		public int attack = 1;
 		public int armour = 1;
 		public int shield = 1;
+
+		public DamageType attackType = DamageType.Kinetic;
+		public LightType attackLightType = LightType.None;
+		public LightType sheildLightType = LightType.None;
 
 		public int x = 0;
 		public int y = 0;
@@ -65,8 +94,8 @@ namespace TacticalBoard
 			this.pathDistance = (this.pathTo != null) ? (this.pathTo.Count - 1) : -1;
 			this.stepTowards = (this.pathDistance > 0) ? this.pathTo[0] : null;
 
-			this.range = this.GetDistance(us, them);
-			this.turnsToReach = us.TurnsToTravel(this.pathDistance);
+			this.range = Math.Distance(us, them);
+			this.turnsToReach = us.TurnsToTravel(this.pathTo);
 
 			this.turnsToDefeatShield = (int)System.Math.Ceiling( (float)them.Current.shield - (float)us.Current.attack );
 			this.turnsToDefeatArmour = (int)System.Math.Ceiling( (float)them.Current.armour - (float)us.Current.attack );
@@ -74,18 +103,15 @@ namespace TacticalBoard
 
 			this.totalTurnsToKill = this.turnsTillRange + this.turnsToKill;
 
+			Debug.Log(" pathDistance=" + this.pathDistance);
 			if (this.pathTo != null)
 			{
 				for (int i=0; i<this.pathTo.Count; i++)
 				{
 					GridNode gn = this.pathTo[i];
+					Debug.Log("  " + gn.x + "," + gn.y);
 				}
 			}
-		}
-
-		public float GetDistance(Entity us, Entity them)
-		{
-			return (float)System.Math.Sqrt( System.Math.Pow(us.X-them.Y, 2) + System.Math.Pow(us.Y-them.Y, 2) );
 		}
 	}
 
@@ -114,8 +140,6 @@ namespace TacticalBoard
 		public Dictionary<uint,EntityAssesment> Hostiles;
 		public Dictionary<uint,EntityAssesment> Neutrals;
 
-		private float accumulatedMove = 0.0f;
-
 		public Entity(uint id, PlayerTeam team, uint playerId, Grid grid, EntityParams ep, Brain br = null)
 		{
 			this.Id = id;
@@ -126,7 +150,7 @@ namespace TacticalBoard
 
 			this.Team = team;
 
-			this.Searcher = this.ParentGrid.CreateSearcher(true, false, false);
+			this.Searcher = this.ParentGrid.CreateSearcher();
 			this.Friendlies = new Dictionary<uint,EntityAssesment>();
 			this.Hostiles = new Dictionary<uint,EntityAssesment>();
 			this.Neutrals = new Dictionary<uint,EntityAssesment>();
@@ -157,7 +181,7 @@ namespace TacticalBoard
 				return null;
 			}
 
-			return this.Searcher.GetPath(this.Position, to);
+			return this.Searcher.GetPath(this.Position, to, this);
 		}
 
 		public void Reset()
@@ -188,6 +212,10 @@ namespace TacticalBoard
 			return false;
 		}
 
+		public bool Damage(int amount, EntityParams.DamageType type = EntityParams.DamageType.Kinetic, EntityParams.LightType lightType = EntityParams.LightType.None)
+		{
+			return true;
+		}
 
 		public bool IsDeployed()
 		{
@@ -298,36 +326,33 @@ namespace TacticalBoard
 			return (this.IsActive() && (this.Current.move > 0));
 		}
 
-		public int AvailableMoveAmount()
+		public int GetMove()
 		{
 			if (!this.CanMove())
 			{
 				return 0;
 			}
 
-			return (int)System.Math.Floor(this.accumulatedMove);
+			return this.Current.move;
 		}
 
-		public int TurnsToTravel(int pathLength)
+		//needs to take in the path later since hard angle transitions will take time
+		public int TurnsToTravel(List<GridNode> path)
 		{
-			if (!this.CanMove())
+			if (!this.CanMove() || (path == null))
 			{
 				return 0;
 			}
 
-			int maxTurns = 100;
+			int turns = 0;
 
-			for (int turnCount=0; turnCount<maxTurns; turnCount++)
+			for (int i=0; i<path.Count; i++)
 			{
-				float accum = this.accumulatedMove + this.Current.move;
-				int movesAtTurn = (int)System.Math.Floor(accum);
-				if (movesAtTurn >= pathLength)
-				{
-					return movesAtTurn;
-				}
+				//needs to be based on transtition
+				turns++;
 			}
 
-			return maxTurns;
+			return turns;
 		}
 
 		public bool IsTeamHostile(PlayerTeam t) 	{ return ((t != PlayerTeam.Neutral) && (t != this.Team)); }
@@ -383,12 +408,6 @@ namespace TacticalBoard
 
 		public bool UpdateMove()
 		{
-			this.accumulatedMove += this.Current.move;
-			if (this.accumulatedMove > this.Current.move)
-			{
-				this.accumulatedMove = this.Current.move;
-			}
-
 			bool moved = false;
 			if (this.CurrentBrain != null)
 			{

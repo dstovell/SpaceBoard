@@ -9,14 +9,19 @@ namespace TacticalBoard
 		Warp
 	}
 
-	public class GridNode
+	public class GridNode : AStar.IPathNode<Entity>
 	{
 		public GridNode(ushort id, int dx, int dy)
 		{
 			this.Id = id;
 			this.x = dx;
 			this.y = dy;
-			this.gridPos = new EpPathFinding.GridPos(this.x, this.y);
+			this.point = new AStar.Point(this.x, this.y);
+		}
+
+		public bool IsWalkable(Entity forEntity)
+		{
+			return !this.occupied;
 		}
 
 		public ushort Id;
@@ -25,14 +30,14 @@ namespace TacticalBoard
 
 		public bool occupied;
 
-		public EpPathFinding.GridPos gridPos;
+		public AStar.Point point;
 	}
 
 	public class GridSearcher
 	{
 		public Grid ParentGrid;
 
-		public virtual List<GridNode> GetPath(GridNode n1, GridNode n2)
+		public virtual List<GridNode> GetPath(GridNode n1, GridNode n2, Entity entityMoving)
 		{
 			return null;
 		}
@@ -40,7 +45,7 @@ namespace TacticalBoard
 
 	public class Grid
 	{
-		public virtual GridSearcher CreateSearcher(bool allowEndNodeUnWalkable = true, bool crossCorner = true, bool crossAdjacentPoint = true)
+		public virtual GridSearcher CreateSearcher()
 		{
 			return null;
 		}

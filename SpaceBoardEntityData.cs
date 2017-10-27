@@ -10,7 +10,7 @@ public class SpaceBoardEntityData : MonoBehaviour
 	public float PrefabScale = 1.0f;
 
 	public TacticalBoard.EntityParams Params;
-	public float move = 1;
+	public int move = 1;
 	public float range = 1;
 	public int attack = 1;
 	public int armour = 1;

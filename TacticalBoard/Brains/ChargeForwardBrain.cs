@@ -7,9 +7,9 @@ namespace TacticalBoard
 	{
 		public override bool OnThinkMove(Entity e)
 		{
-			if (e.AvailableMoveAmount() > 0)
+			if (e.GetMove() > 0)
 			{
-				int newY = e.Y + e.AvailableMoveAmount();
+				int newY = e.Y + e.GetMove();
 				GridNode n = e.ParentGrid.GetNode(e.X, newY);
 				if (n != null)
 				{
