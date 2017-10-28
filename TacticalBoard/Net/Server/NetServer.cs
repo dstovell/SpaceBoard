@@ -24,14 +24,11 @@ namespace TacticalBoard
 		private void AddListeners()
 		{
 			this.ConnListener.NewConnection += this.OnNewConnection;
-			//this.Conn.DataReceived += this.OnData;
-			//this.Conn.Disconnected += this.OnDisconnect;
 		}
 
 		private void RemoveListeners()
 		{
 			this.ConnListener.NewConnection -= this.OnNewConnection;
-			//this.Conn.DataReceived -= this.OnData;
 		}
 
 		private void OnNewConnection(object sender, Hazel.NewConnectionEventArgs a)
@@ -47,6 +44,11 @@ namespace TacticalBoard
             //Disconnect from the client
             //a.Connection.Close();
         }
+
+		private void Start()
+		{
+			this.ConnListener.Start();
+		}
 
 		public NetServerGame AddGame(uint gameId)
 		{
@@ -87,5 +89,34 @@ namespace TacticalBoard
 				this.PendingPlayers.Remove(p);
 			}
 		}
+
+		public static string Usage = "mono TacticalBoardServer.exe <port>";
+
+		static public void Main(string[] args)
+	    {
+	    	if (args.Length < 1)
+	    	{
+				Debug.Log(Usage);
+				return;
+	    	}
+
+	    	int port = System.Int32.Parse(args[0]);
+	    	if (port <= 0)
+	    	{
+				Debug.Log(Usage);
+				return;
+	    	}
+
+	        Debug.Log("TacticalBoard Server will listen on port " + port);
+
+			NetServer server = new NetServer(port);
+			server.Start();
+
+			Debug.Log("Press any key to exit");
+
+			#if !UNITY_5
+            System.Console.ReadKey();
+            #endif
+	    }
 	}
 }

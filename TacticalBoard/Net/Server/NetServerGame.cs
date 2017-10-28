@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.Net;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace TacticalBoard
@@ -102,8 +103,6 @@ namespace TacticalBoard
 		public uint Id;
 
 		private List<NetServerPlayer> Players;
-		private Hazel.Udp.UdpConnectionListener ConnListener;
-		private Hazel.NetworkEndPoint EndPoint;
 
 		public NetServerGame(uint id)
 		{
