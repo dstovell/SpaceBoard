@@ -21,6 +21,8 @@ namespace TacticalBoard
 
 		private Hazel.Connection Conn;
 
+		private EntityParams [] Entities;
+
 		public bool IsConnected()
 		{
 			return (this.State == ConnectionState.Connected);

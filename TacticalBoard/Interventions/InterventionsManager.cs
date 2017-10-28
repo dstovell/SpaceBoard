@@ -10,6 +10,7 @@ namespace TacticalBoard
 		public enum Flow
 		{
 			Local,
+			Client,
 			Server
 		}
 		public Flow FlowType;

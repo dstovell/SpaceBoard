@@ -17,6 +17,7 @@ namespace TacticalBoard
 			this.EndPoint = new Hazel.NetworkEndPoint(IPAddress.Any, port, ipMode);
 			this.ConnListener = new Hazel.Udp.UdpConnectionListener(this.EndPoint);
 			this.Games = new Dictionary<uint, NetServerGame>();
+			this.PendingPlayers = new List<NetServerPlayer>();
 
 			this.AddListeners();
 		}
@@ -33,6 +34,7 @@ namespace TacticalBoard
 
 		private void OnNewConnection(object sender, Hazel.NewConnectionEventArgs a)
         {
+			Debug.Log("sender=" + sender + " HandshakeData=" + a.HandshakeData.Length);
         	Hazel.Connection newConn = a.Connection;
 
         	NetServerPlayer newPlayer = new NetServerPlayer(this, newConn);
@@ -90,22 +92,25 @@ namespace TacticalBoard
 			}
 		}
 
+		public static int DefaultPort = 3334;
 		public static string Usage = "mono TacticalBoardServer.exe <port>";
 
 		static public void Main(string[] args)
 	    {
-	    	if (args.Length < 1)
-	    	{
-				Debug.Log(Usage);
-				return;
-	    	}
+//	    	if (args.Length < 1)
+//	    	{
+//				Debug.Log(Usage);
+//				return;
+//	    	}
+//
+//	    	int port = System.Int32.Parse(args[0]);
+//	    	if (port <= 0)
+//	    	{
+//				Debug.Log(Usage);
+//				return;
+//	    	}
 
-	    	int port = System.Int32.Parse(args[0]);
-	    	if (port <= 0)
-	    	{
-				Debug.Log(Usage);
-				return;
-	    	}
+			int port = NetServer.DefaultPort;
 
 	        Debug.Log("TacticalBoard Server will listen on port " + port);
 

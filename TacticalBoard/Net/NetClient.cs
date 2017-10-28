@@ -29,7 +29,7 @@ namespace TacticalBoard
 
 		public void Connect()
 		{
-			//this.Conn.Connect(this.EndPoint);
+			this.Conn.Connect(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 }); 
 		}
 
 		private void OnData(object obj, Hazel.DataReceivedEventArgs arg)
