@@ -39,8 +39,9 @@ namespace TacticalBoard
 			this.Delivered = true;
 		}
 
-		public Request(InterventionType type, long turn, uint entityId = 0, ushort gridNodeId = 0)
+		public Request(uint playerId, InterventionType type, long turn, uint entityId = 0, ushort gridNodeId = 0)
 		{
+			this.PlayerId = playerId;
 			this.Type = type;
 			this.TurnRequested = turn;
 			this.EntityId = entityId;
@@ -54,6 +55,7 @@ namespace TacticalBoard
 		public long TurnRequested;
 		public long Turn;
 		public uint RequestId;
+		public uint PlayerId;
 		public uint EntityId;
 		public ushort GridNodeId;
 		public InterventionType Type;

@@ -19,6 +19,8 @@ namespace TacticalBoard
 			this.Games = new Dictionary<uint, NetServerGame>();
 			this.PendingPlayers = new List<NetServerPlayer>();
 
+			TacticalBoard.Manager.Init(10, 10, InterventionsManager.Flow.Server);
+
 			this.AddListeners();
 		}
 
@@ -37,14 +39,26 @@ namespace TacticalBoard
 			Debug.Log("sender=" + sender + " HandshakeData=" + a.HandshakeData.Length);
         	Hazel.Connection newConn = a.Connection;
 
-        	NetServerPlayer newPlayer = new NetServerPlayer(this, newConn);
-        	this.PendingPlayers.Add(newPlayer);
+        	int handShakeHeader = 3;
 
-            //Send the client some data
-			//a.Connection.SendBytes(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 }, Hazel.SendOption.Reliable);
+			if (a.HandshakeData.Length > handShakeHeader)
+			{
+	        	Handshake hs = new Handshake();
+				NetMessageHub.DeSerializeData(hs, a.HandshakeData, handShakeHeader);
+				Debug.Log("Handshake playerId=" + hs.playerId + " gameId=" + hs.gameId + " secret=" + hs.secret);
 
-            //Disconnect from the client
-            //a.Connection.Close();
+				NetServerPlayer newPlayer = new NetServerPlayer(this, newConn);
+
+				if (hs.gameId != 0)
+				{
+					NetServerGame game = this.AddGame(hs.gameId);
+					game.AddPlayer(newPlayer);
+				}
+				else
+				{
+					this.PendingPlayers.Add(newPlayer);
+				}
+			}
         }
 
 		private void Start()
@@ -70,17 +84,19 @@ namespace TacticalBoard
 		{
 			//This will be data about who the client is and what game they want
 
-			uint playerId = 0;
-			uint gameId = 0;
+			NetMessageType type = NetMessage.GetType(arg.Bytes);
 
-			p.Id = playerId;
-
-			NetServerGame game = this.AddGame(gameId);
-			game.AddPlayer(p);
-
-			if (this.PendingPlayers.Contains(p))
+			switch (type)
 			{
-				this.PendingPlayers.Remove(p);
+				case NetMessageType.Handshake:
+				{
+					break;
+				}
+
+				default:
+				{
+					break;
+				}
 			}
 		}
 

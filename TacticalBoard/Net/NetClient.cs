@@ -8,9 +8,11 @@ namespace TacticalBoard
 	{
 		private Hazel.Udp.UdpConnection Conn;
 		private Hazel.NetworkEndPoint EndPoint;
+		private Game ParentGame;
 
-		public NetClient(string address, int port, Hazel.IPMode ipMode = Hazel.IPMode.IPv4)
+		public NetClient(Game game, string address, int port, Hazel.IPMode ipMode = Hazel.IPMode.IPv4)
 		{
+			this.ParentGame = game;
 			this.EndPoint = new Hazel.NetworkEndPoint(address, port, ipMode);
 			this.Conn = new Hazel.Udp.UdpClientConnection(this.EndPoint);
 			this.AddListeners();
@@ -29,15 +31,34 @@ namespace TacticalBoard
 
 		public void Connect()
 		{
-			this.Conn.Connect(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 }); 
+			Handshake hs = new Handshake();
+			hs.gameId = 99;
+			hs.playerId = 100001;
+
+			byte [] buffer = NetMessageHub.SerializeData(hs);
+			this.Conn.Connect(buffer); 
+		}
+
+		public void Connect(Player p, uint gameId)
+		{
+			Handshake hs = new Handshake();
+			hs.gameId = gameId;
+			hs.playerId = p.Id;
+
+			byte [] buffer = NetMessageHub.SerializeData(hs);
+			this.Conn.Connect(buffer); 
 		}
 
 		private void OnData(object obj, Hazel.DataReceivedEventArgs arg)
 		{
+			if (this.ParentGame != null)
+			{
+			}
 		}
 
 		private void OnDisconnect(object obj, Hazel.DisconnectedEventArgs arg)
 		{
+			//Handle Disconnect here
 		}
 	}
 }

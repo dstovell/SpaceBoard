@@ -11,27 +11,34 @@ namespace TacticalBoard
 	
 	public abstract class Serializer
 	{
-		protected uint index;
+		protected int index;
 		protected byte [] data;
-		public Serializer(byte [] _data)
+		public Serializer(byte [] _data, int start = 0)
 		{
 			this.data = _data;
-			this.index = 0;
+			this.index = start;
 		}
 
 		public abstract int Serialize(int n);
 		public abstract uint Serialize(uint n);
+
+		public abstract short Serialize(short n);
 		public abstract ushort Serialize(ushort n);
+
+		public abstract long Serialize(long n);
+		public abstract ulong Serialize(ulong n);
+
+
 		//public abstract void Serialize(float n);
 	}
 
 	public class WriteSerializer : Serializer
 	{
-		public WriteSerializer(byte [] _data) : base(_data)
+		public WriteSerializer(byte [] _data, int start = 0) : base(_data, start)
 		{
 		}
 
-		protected void WriteBytes(byte [] newData)
+		protected virtual void WriteBytes(byte [] newData)
 		{
 			for (int i=0; i<newData.Length; i++)
 			{
@@ -45,6 +52,11 @@ namespace TacticalBoard
 			}
 		}
 
+		public byte [] GetData()
+		{
+			return this.data;
+		}
+
 		public override int Serialize(int n)
 		{
 			this.WriteBytes( System.BitConverter.GetBytes(n) );
@@ -57,7 +69,25 @@ namespace TacticalBoard
 			return n;
 		}
 
+		public override short Serialize(short n)
+		{
+			this.WriteBytes( System.BitConverter.GetBytes(n) );
+			return n;
+		}
+
 		public override ushort Serialize(ushort n)
+		{
+			this.WriteBytes( System.BitConverter.GetBytes(n) );
+			return n;
+		}
+
+		public override long Serialize(long n)
+		{
+			this.WriteBytes( System.BitConverter.GetBytes(n) );
+			return n;
+		}
+
+		public override ulong Serialize(ulong n)
 		{
 			this.WriteBytes( System.BitConverter.GetBytes(n) );
 			return n;
@@ -66,43 +96,71 @@ namespace TacticalBoard
 
 	public class ReadSerializer : Serializer
 	{
-		public ReadSerializer(byte [] _data) : base(_data)
+		public ReadSerializer(byte [] _data, int start = 0) : base(_data, start)
 		{
-		}
-
-		protected void ReadBytes(byte [] newData)
-		{
-			for (int i=0; i<newData.Length; i++)
-			{
-				if (this.index == this.data.Length)
-				{
-					return;
-				}
-
-				newData[i] = this.data[this.index];
-				this.index++;
-			}
 		}
 
 		public override int Serialize(int n)
 		{
-			byte [] newData = new byte[4];
-			this.ReadBytes(newData);
-			return System.BitConverter.ToInt32(newData, 0);
+			int value = System.BitConverter.ToInt32(this.data, this.index);
+			this.index += sizeof(int);
+			return value;
 		}
 
 		public override uint Serialize(uint n)
 		{
-			byte [] newData = new byte[4];
-			this.ReadBytes(newData);
-			return System.BitConverter.ToUInt32(newData, 0);
+			uint value = System.BitConverter.ToUInt32(this.data, this.index);
+			this.index += sizeof(uint);
+			return value;
+		}
+
+		public override short Serialize(short n)
+		{
+			short value = System.BitConverter.ToInt16(this.data, this.index);
+			this.index += sizeof(short);
+			return value;
 		}
 
 		public override ushort Serialize(ushort n)
 		{
-			byte [] newData = new byte[2];
-			this.ReadBytes(newData);
-			return System.BitConverter.ToUInt16(newData, 0);
+			ushort value = System.BitConverter.ToUInt16(this.data, this.index);
+			this.index += sizeof(ushort);
+			return value;
+		}
+
+
+		public override long Serialize(long n)
+		{
+			long value = System.BitConverter.ToInt64(this.data, this.index);
+			this.index += sizeof(long);
+			return value;
+		}
+
+		public override ulong Serialize(ulong n)
+		{
+			ulong value = System.BitConverter.ToUInt64(this.data, this.index);
+			this.index += sizeof(ulong);
+			return value;
+		}
+	}
+
+	public class SizeSerializer : WriteSerializer
+	{
+		public SizeSerializer(int start = 0) : base(null, start)
+		{
+		}
+
+		protected override void WriteBytes(byte [] newData)
+		{
+			for (int i=0; i<newData.Length; i++)
+			{
+				this.index++;
+			}
+		}
+
+		public int GetSize()
+		{
+			return this.index;
 		}
 	}
 }

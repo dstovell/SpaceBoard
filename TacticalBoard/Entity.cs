@@ -60,6 +60,13 @@ namespace TacticalBoard
 		public int y = 0;
 	}
 
+	public class EntityData
+	{
+		public string Id;
+		public EntityParams Base;
+		public EntityParams [] Mods;
+	}
+
 	public class EntityAssesment
 	{
 		public int pathDistance;
@@ -265,7 +272,7 @@ namespace TacticalBoard
 				return false;
 			}
 
-			Request r = new Request(InterventionType.Deployment, this.TurnCount, this.Id, node.Id);
+			Request r = new Request(this.PlayerId, InterventionType.Deployment, this.TurnCount, this.Id, node.Id);
 			r.OnRequestComplete = this.OnDeploymentRequestComplete;
 			r.OnRequestAction = this.OnDeployment;
 

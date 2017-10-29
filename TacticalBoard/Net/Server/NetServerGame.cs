@@ -4,112 +4,10 @@ using System.Collections.Generic;
 
 namespace TacticalBoard
 {
-	public class NetServerPlayer
+	public class NetServerGame : Game
 	{
-		public enum ConnectionState
+		public NetServerGame(uint id) : base(id)
 		{
-			Connecting,
-			Connected,
-			Disconnnected
-		}
-		private ConnectionState State = ConnectionState.Connecting;
-
-		public uint Id;
-		public uint GameId;
-		private NetServerGame Game;
-		private NetServer Server;
-
-		private Hazel.Connection Conn;
-
-		private EntityParams [] Entities;
-
-		public bool IsConnected()
-		{
-			return (this.State == ConnectionState.Connected);
-		}
-
-		public NetServerPlayer(NetServer server, Hazel.Connection conn)
-		{
-			this.Server = server;
-			this.Conn = conn;
-			this.AddListeners();
-		}
-
-		public NetServerPlayer(uint playerId, Hazel.Connection conn)
-		{
-			this.Id = playerId;
-			this.Conn = conn;
-			this.AddListeners();
-		}
-
-		private void AddListeners()
-		{
-			this.Conn.DataReceived += this.OnData;
-			this.Conn.Disconnected += this.OnDisconnect;
-		}
-
-		private void RemoveListeners()
-		{
-			this.Conn.DataReceived -= this.OnData;
-			this.Conn.Disconnected -= this.OnDisconnect;
-		}
-
-		public void AssignToGame(uint gameId, NetServerGame game)
-		{
-			this.GameId = gameId;
-			this.Game = game;
-			this.State = ConnectionState.Connected;
-		}
-
-		public void Send()
-		{
-		}
-
-		private void OnData(object obj, Hazel.DataReceivedEventArgs arg)
-		{
-			if (!this.IsConnected())
-			{
-				if (this.Server != null)
-				{
-					this.Server.OnData(this, obj, arg);
-				}
-				return;
-			}
-
-			if (this.Game != null)
-			{
-				this.Game.OnData(this, obj, arg);
-			}
-		}
-
-		private void OnDisconnect(object obj, Hazel.DisconnectedEventArgs arg)
-		{
-			if (!this.IsConnected())
-			{
-				if (this.Server != null)
-				{
-					this.Server.OnDisconnect(this, obj, arg);
-				}
-				return;
-			}
-
-			if (this.Game != null)
-			{
-				this.Game.OnDisconnect(this, obj, arg);
-			}
-		}
-	}
-
-	public class NetServerGame
-	{
-		public uint Id;
-
-		private List<NetServerPlayer> Players;
-
-		public NetServerGame(uint id)
-		{
-			this.Id = id;
-			this.Players = new List<NetServerPlayer>();	
 		}
 
 		public void AddPlayer(uint playerId, Hazel.Connection conn)
@@ -128,31 +26,64 @@ namespace TacticalBoard
 			this.Players.Add(p);
 
 			p.AssignToGame(this.Id, this);
+
+			PlayerJoin msg = new PlayerJoin(p.Id);
+
+			this.SendToPlayers(msg, Hazel.SendOption.Reliable);
 		}
 
-		public void SendToPlayers()
+		public void SendToPlayers(NetMessage msg, Hazel.SendOption sendOption = Hazel.SendOption.Reliable)
 		{
 			//Do we need to make this thread safe?
 			for (int i=0; i<this.Players.Count; i++)
 			{
-				NetServerPlayer p = this.Players[i];
+				NetServerPlayer p = this.Players[i] as NetServerPlayer;
 				if (p.IsConnected())
 				{
-					p.Send();
+					p.Send(msg, sendOption);
+				}
+			}
+		}
+
+		public void SendToPlayers(byte [] data, Hazel.SendOption sendOption = Hazel.SendOption.Reliable)
+		{
+			//Do we need to make this thread safe?
+			for (int i=0; i<this.Players.Count; i++)
+			{
+				NetServerPlayer p = this.Players[i] as NetServerPlayer;
+				if (p.IsConnected())
+				{
+					p.Send(data, sendOption);
 				}
 			}
 		}
 
 		public void OnData(NetServerPlayer p, object obj, Hazel.DataReceivedEventArgs arg)
 		{
-			//For now, just rebroadcast
-			this.SendToPlayers();
+			NetMessageType type = NetMessage.GetType(arg.Bytes);
+
+			switch (type)
+			{
+				case NetMessageType.Handshake:
+				{
+					break;
+				}
+
+				default:
+				{
+					//Don't know this message, ignoring
+					this.SendToPlayers(arg.Bytes, arg.SendOption);
+					break;
+				}
+			}
 		}
 
 		public void OnDisconnect(NetServerPlayer p, object obj, Hazel.DisconnectedEventArgs arg)
 		{
-			//For now, just rebroadcast
-			this.SendToPlayers();
+			PlayerLeave msg = new PlayerLeave(p.Id);
+
+			this.SendToPlayers(msg, Hazel.SendOption.Reliable);
+
 			this.Players.Remove(p);
 		}
 	}
