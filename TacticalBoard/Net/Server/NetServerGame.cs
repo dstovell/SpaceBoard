@@ -80,11 +80,11 @@ namespace TacticalBoard
 
 		public void OnDisconnect(NetServerPlayer p, object obj, Hazel.DisconnectedEventArgs arg)
 		{
+			Debug.Log("Player " + p.Id + " has disconnected");
 			PlayerLeave msg = new PlayerLeave(p.Id);
+			this.Players.Remove(p);
 
 			this.SendToPlayers(msg, Hazel.SendOption.Reliable);
-
-			this.Players.Remove(p);
 		}
 	}
 }
