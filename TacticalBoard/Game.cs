@@ -5,9 +5,19 @@ namespace TacticalBoard
 {
 	public class Game
 	{
+		static uint MaxPlayers = 2;
+
+		public enum SimType
+		{
+			Local,
+			Remote
+		}
+		protected SimType Sim;
+
 		public enum GameState
 		{
 			None,
+			WaitingToConnect,
 			WaitingForPlayers,
 			WaitingForStart,
 			Running,
@@ -15,9 +25,15 @@ namespace TacticalBoard
 		}
 		protected GameState State = GameState.None;
 
-		public Game(uint gameId)
+		public bool IsRunning() 
+		{ 
+			return (this.State == GameState.Running);
+		}
+
+		public Game(uint gameId = 0)
 		{
 			this.Id = gameId;
+			this.Sim = SimType.Local;
 
 			this.TurnCount = 0;
 			this.EntityCounts = new Dictionary<uint,uint>();
@@ -29,15 +45,56 @@ namespace TacticalBoard
 			this.EntityMap = new Dictionary<uint,Entity>();
 		}
 
+		protected long deltaTime = 0;
+		public virtual long GetTime()
+		{
+			return ((System.DateTime.UtcNow.Ticks/System.TimeSpan.TicksPerMillisecond) + this.deltaTime);
+		}
+
+		public long SetDeltaTime(long serverTime, long latency = 0)
+		{
+			this.deltaTime = (serverTime - (System.DateTime.UtcNow.Ticks/System.TimeSpan.TicksPerMillisecond));
+			return this.GetTime(); 
+		}
+
 		public void Connect(string ip, int port)
 		{
-			this.Client = new NetClient(this, "127.0.0.1", NetServer.DefaultPort);
+			if (ip == null)
+			{
+				ip = "127.0.0.1";
+			}
+
+			this.Sim = SimType.Remote;
+			this.State = GameState.WaitingToConnect;
+			this.Client = new NetClient(this, ip, NetServer.DefaultPort);
 			this.Client.Connect();
 		}
 
-		public void CreateBoard()
+		public void LoadLevel(uint level)
 		{
-			
+			LevelParams lp = Data.Levels.ContainsKey(level) ? Data.Levels[level] : null;
+			if (lp != null)
+			{
+				this.LevelId = level;
+				this.CreateBoard(lp);
+			}
+		}
+
+		public void LoadRandomLevel()
+		{
+			string levelName = "Test01";
+			uint levelId = Data.GetHash(levelName);
+			LevelParams lp = Data.Levels.ContainsKey(levelId) ? Data.Levels[levelId] : null;
+			if (lp != null)
+			{
+				Debug.Log("LoadRandomLevel " + levelName + " " + lp.Id + " size=" + lp.SizeX + "," + lp.SizeY);
+				this.LoadLevel(levelId);
+			}
+		}
+
+		public void CreateBoard(LevelParams lp)
+		{
+			this.Board = new SquareGrid(lp.SizeX, lp.SizeY);
 		}
 
 		public void AddPlayer(Player p)
@@ -50,9 +107,24 @@ namespace TacticalBoard
 			this.Players.Add(p);
 		}
 
+		public uint RemainingPlayerSlots()
+		{
+			return (uint)System.Math.Max(0, (Game.MaxPlayers - (uint)this.Players.Count));
+		}
+
+		public bool IsFull()
+		{
+			return (this.RemainingPlayerSlots() == 0);
+		}
+
 		public uint Id;
+		public long StartTime = 0;
+		public long EndTime = 0;
 		public long TurnCount = 0;
+		public uint LevelId;
 		public Grid Board;
+
+		private long LastTurnUpdate = 0;
 
 		public List<Entity> Entites;
 		public Dictionary<uint, Entity> EntityMap;
@@ -66,6 +138,46 @@ namespace TacticalBoard
 		private NetClient Client;
 
 		public void Update()
+		{
+			long now = this.GetTime();
+			bool hasStarted = (this.StartTime <= now);
+			bool hasEnded = (this.EndTime > now);
+			bool inTimeFrame = (hasStarted && !hasEnded);
+
+			if (!hasStarted || (this.State == GameState.Ended))
+			{
+				return;
+			}
+
+			if (!this.IsRunning())
+			{
+				if (inTimeFrame)
+				{
+					this.State  = GameState.Running;
+				}
+				else
+				{
+					return;
+				}
+			}
+
+			if (this.IsRunning())
+			{
+				long timeSinceLastUpdate = now - this.LastTurnUpdate;
+
+				if (timeSinceLastUpdate > Data.MillisecondsPerTurn)
+				{
+					if (TacticalBoard.Manager.Instance != null)
+					{
+						UpdateTurn();
+						this.LastTurnUpdate = now;
+						//Debug.Log("TurnCount=" + this.Board.TurnCount + " " + this.Board.Entites.Count);
+					}
+				}
+			}
+		}
+
+		private void UpdateTurn()
 		{
 			this.TurnCount++;
 
@@ -129,6 +241,11 @@ namespace TacticalBoard
 
 		public Player AddPlayer(uint id, PlayerTeam team)
 		{
+			if (this.PlayerMap.ContainsKey(id))
+			{
+				return this.PlayerMap[id];
+			}
+
 			Player p = new Player(id, team);
 			this.Players.Add(p);
 			this.Players.Sort(this.PlayerComparer);
@@ -142,16 +259,32 @@ namespace TacticalBoard
 			return this.PlayerMap.ContainsKey(id) ? this.PlayerMap[id] : null;
 		}
 
-		public void HandleSetupBoard()
+		public void HandleGameJoined(GameJoined msg)
 		{
-			//this.Board = new SquareGrid(x, y);
+			this.Id = msg.GameId;
+			this.State = GameState.WaitingForPlayers;
+
+			this.SetDeltaTime(msg.ServerTime);
+
+			this.LoadLevel(msg.LevelId);
 		}
 
-		public void HandlePlayerJoin()
+		public void HandleGameStart(GameStart msg)
 		{
+			
 		}
 
-		public void HandlePlayerLeave()
+		public void HandleGameEnd(GameEnd msg)
+		{
+			
+		}
+
+		public void HandlePlayerJoin(PlayerJoin msg)
+		{
+			this.AddPlayer(msg.PlayerId, PlayerTeam.Neutral);
+		}
+
+		public void HandlePlayerLeave(PlayerLeave msg)
 		{
 		}
 

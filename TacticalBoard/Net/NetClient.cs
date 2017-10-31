@@ -32,17 +32,15 @@ namespace TacticalBoard
 		public void Connect()
 		{
 			Handshake hs = new Handshake();
-			hs.gameId = 99;
 			hs.playerId = 100001;
 
 			byte [] buffer = NetMessageHub.SerializeData(hs);
 			this.Conn.Connect(buffer); 
 		}
 
-		public void Connect(Player p, uint gameId)
+		public void Connect(Player p)
 		{
 			Handshake hs = new Handshake();
-			hs.gameId = gameId;
 			hs.playerId = p.Id;
 
 			byte [] buffer = NetMessageHub.SerializeData(hs);
@@ -53,6 +51,55 @@ namespace TacticalBoard
 		{
 			if (this.ParentGame != null)
 			{
+				NetMessageType type = NetMessage.GetType(arg.Bytes);
+
+				switch (type)
+				{
+					case NetMessageType.GameJoined:
+					{
+						GameJoined msg = new GameJoined();
+						NetMessageHub.DeSerializeData(msg, arg.Bytes, 0);
+						this.ParentGame.HandleGameJoined(msg);
+						break;
+					}
+
+					case NetMessageType.GameStart:
+					{
+						GameStart msg = new GameStart();
+						NetMessageHub.DeSerializeData(msg, arg.Bytes, 0);
+						this.ParentGame.HandleGameStart(msg);
+						break;
+					}
+
+					case NetMessageType.GameEnd:
+					{
+						GameEnd msg = new GameEnd();
+						NetMessageHub.DeSerializeData(msg, arg.Bytes, 0);
+						this.ParentGame.HandleGameEnd(msg);
+						break;
+					}
+
+					case NetMessageType.PlayerJoin:
+					{
+						PlayerJoin msg = new PlayerJoin();
+						NetMessageHub.DeSerializeData(msg, arg.Bytes, 0);
+						this.ParentGame.HandlePlayerJoin(msg);
+						break;
+					}
+
+					case NetMessageType.PlayerLeave:
+					{
+						PlayerLeave msg = new PlayerLeave();
+						NetMessageHub.DeSerializeData(msg, arg.Bytes, 0);
+						this.ParentGame.HandlePlayerLeave(msg);
+						break;
+					}
+
+					default:
+					{
+						break;
+					}
+				}
 			}
 		}
 

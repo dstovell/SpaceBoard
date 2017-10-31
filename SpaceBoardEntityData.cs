@@ -18,9 +18,9 @@ public class SpaceBoardEntityData : MonoBehaviour
 
 	void Awake()
 	{
-		this.Params = new TacticalBoard.EntityParams();
+		this.Params = new TacticalBoard.EntityParams(this.name);
 		this.Params.move = this.move;
-		this.Params.range = this.range;
+		this.Params.attackRange = this.range;
 		this.Params.attack = this.attack;
 		this.Params.armour = this.armour;
 		this.Params.shield = this.shield;

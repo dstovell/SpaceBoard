@@ -7,6 +7,9 @@ namespace TacticalBoard
 	public enum NetMessageType
 	{
 		Handshake,
+		GameJoined,
+		GameStart,
+		GameEnd,
 		PlayerJoin,
 		PlayerLeave,
 		PlayerIntervention,
@@ -39,7 +42,6 @@ namespace TacticalBoard
 
 		public uint secret;
 		public uint playerId;
-		public uint gameId;
 
 		public Handshake() : base(NetMessageType.Handshake)
 		{
@@ -51,7 +53,38 @@ namespace TacticalBoard
 			base.OnSerialize(s);
 			this.secret = s.Serialize(this.secret);
 			this.playerId = s.Serialize(this.playerId);
-			this.gameId = s.Serialize(this.gameId);
+		}
+	}
+
+	public class GameJoined : NetMessage
+	{
+		public uint GameId;
+		public uint PlayerId;
+		public PlayerTeam Team;
+		public long ServerTime;
+		public uint LevelId;
+
+		public GameJoined() : base(NetMessageType.GameJoined)
+		{
+		}
+
+		public GameJoined(uint id, uint playerId, uint levelId, PlayerTeam team, long serverTime) : base(NetMessageType.GameJoined)
+		{
+			this.GameId = id;
+			this.PlayerId = playerId;
+			this.LevelId = levelId;
+			this.Team = team;
+			this.ServerTime = serverTime;
+		}
+
+		public override void OnSerialize(Serializer s)
+		{
+			base.OnSerialize(s);
+			this.GameId = s.Serialize(this.GameId);
+			this.PlayerId = s.Serialize(this.PlayerId);
+			this.Team = (PlayerTeam)s.Serialize((int)this.Team);
+			this.ServerTime = s.Serialize(this.ServerTime);
+			this.LevelId = s.Serialize(this.LevelId);
 		}
 	}
 
@@ -92,6 +125,49 @@ namespace TacticalBoard
 		{
 			base.OnSerialize(s);
 			this.PlayerId = s.Serialize(this.PlayerId);
+		}
+	}
+
+	public class GameStart : NetMessage
+	{
+		public long AtTime;
+
+		public GameStart() : base(NetMessageType.GameStart)
+		{
+		}
+
+		public GameStart(long serverTime) : base(NetMessageType.GameStart)
+		{
+			this.AtTime = serverTime;
+		}
+
+		public override void OnSerialize(Serializer s)
+		{
+			base.OnSerialize(s);
+			this.AtTime = s.Serialize(this.AtTime);
+		}
+	}
+
+	public class GameEnd : NetMessage
+	{
+		public long AtTime;
+		public PlayerTeam WinningTeam;
+
+		public GameEnd() : base(NetMessageType.GameEnd)
+		{
+		}
+
+		public GameEnd(long serverTime, PlayerTeam winningTeam) : base(NetMessageType.GameEnd)
+		{
+			this.AtTime = serverTime;
+			this.WinningTeam = winningTeam;
+		}
+
+		public override void OnSerialize(Serializer s)
+		{
+			base.OnSerialize(s);
+			this.AtTime = s.Serialize(this.AtTime);
+			this.WinningTeam = (PlayerTeam)s.Serialize((int)this.WinningTeam);
 		}
 	}
 

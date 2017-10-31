@@ -6,11 +6,15 @@ namespace TacticalBoard
 {
 	public class NetServer
 	{
+		public static uint MaxGames = 100;
+
 		private Hazel.Udp.UdpConnectionListener ConnListener;
 		private Hazel.NetworkEndPoint EndPoint;
 
 		private Dictionary<uint, NetServerGame> Games;
 		private List<NetServerPlayer> PendingPlayers;
+
+		private uint LastGameId = 100;
 
 		public NetServer(int port, Hazel.IPMode ipMode = Hazel.IPMode.IPv4)
 		{
@@ -19,7 +23,7 @@ namespace TacticalBoard
 			this.Games = new Dictionary<uint, NetServerGame>();
 			this.PendingPlayers = new List<NetServerPlayer>();
 
-			TacticalBoard.Manager.Init(10, 10, InterventionsManager.Flow.Server);
+			TacticalBoard.Data.Init();
 
 			this.AddListeners();
 		}
@@ -45,18 +49,16 @@ namespace TacticalBoard
 			{
 	        	Handshake hs = new Handshake();
 				NetMessageHub.DeSerializeData(hs, a.HandshakeData, handShakeHeader);
-				Debug.Log("Handshake playerId=" + hs.playerId + " gameId=" + hs.gameId + " secret=" + hs.secret);
+				Debug.Log("Handshake playerId=" + hs.playerId + " secret=" + hs.secret);
 
-				NetServerPlayer newPlayer = new NetServerPlayer(this, newConn);
+				NetServerPlayer newPlayer = new NetServerPlayer(hs.playerId, this, newConn);
 
-				if (hs.gameId != 0)
-				{
-					NetServerGame game = this.AddGame(hs.gameId);
-					game.AddPlayer(newPlayer);
-				}
-				else
+				NetServerGame game = this.MatchmakeFromExisting(newPlayer);
+
+				if (game == null)
 				{
 					this.PendingPlayers.Add(newPlayer);
+					return;
 				}
 			}
         }
@@ -66,8 +68,42 @@ namespace TacticalBoard
 			this.ConnListener.Start();
 		}
 
-		public NetServerGame AddGame(uint gameId)
+		public NetServerGame MatchmakeFromExisting(NetServerPlayer p)
 		{
+			NetServerGame game = null;
+
+			//For now we will just find a game or add one!
+			foreach(KeyValuePair<uint,NetServerGame> pair in this.Games)
+			{
+				if (!pair.Value.IsFull())
+				{
+					game = pair.Value;
+				}
+			}
+
+			if (game == null)
+			{
+				if (this.Games.Count >= NetServer.MaxGames)
+				{
+					return null;
+				}
+
+				game = this.AddGame();
+			}
+
+			game.AddPlayer(p);
+
+			return game;
+		}
+
+		public NetServerGame AddGame(uint gameId = 0)
+		{
+			if (gameId == 0)
+			{
+				gameId = this.LastGameId;
+				this.LastGameId++;
+			}
+
 			if (this.Games.ContainsKey(gameId))
 			{
 				return this.Games[gameId];

@@ -25,18 +25,19 @@ public class SpaceBoardComponent : MonoBehaviour
 	{
 		Instance = this;
 		this.NodeMap = new Dictionary<ushort,SpaceBoardNodeComponent>();
-		TacticalBoard.Manager.Init(this.SizeX, this.SizeY, TacticalBoard.InterventionsManager.Flow.Local);
-		//this.Board = TacticalBoard.Manager.Instance;
+		TacticalBoard.Manager.Init();
 		CreateBoard();
 	}
 
 	public TacticalBoard.Player CreatePlayer(uint playerId, TacticalBoard.PlayerTeam team)
 	{
-		return TacticalBoard.Manager.Instance.AddPlayer(playerId, team);
+		return null;
+		//return TacticalBoard.Manager.Instance.AddPlayer(playerId, team);
 	}
 
 	public void CreateEntity(TacticalBoard.PlayerTeam team, uint playerId, string id, int warpToX, int warpToY)
 	{
+		return;
 		SpaceBoardEntityData data = SpaceBoardEntityManager.Instance.GetEntityData(id);
 		//Debug.LogError("CreateEntity team=" + team.ToString() + " playerId=" + playerId + " id=" + id + " warpTo=" + warpToX + "," + warpToY + " data=" + data);
 		if (data == null)
@@ -48,7 +49,7 @@ public class SpaceBoardComponent : MonoBehaviour
 
 		TacticalBoard.GridNode nodeToWarpTo = TacticalBoard.Manager.Instance.Board.GetNode(warpToX, warpToY);
 
-		TacticalBoard.Entity e = TacticalBoard.Manager.Instance.AddEntity(team, playerId, data.Params, br);
+		TacticalBoard.Entity e = null;//TacticalBoard.Manager.Instance.AddEntity(team, playerId, data.Params, br);
 
 		Vector3 pos = new Vector3(this.GetX(warpToX), 0, this.GetY(warpToY) - 200);
 		GameObject obj = SpaceBoardEntityManager.Instance.CreateGameBoardEntity(id, pos, Quaternion.identity);
@@ -106,12 +107,12 @@ public class SpaceBoardComponent : MonoBehaviour
 				GameObject obj = GameObject.Instantiate(this.BoardNodePrefab, this.transform);
 				obj.transform.SetPositionAndRotation(this.GetPos(x, y), Quaternion.identity);
 
-				TacticalBoard.GridNode node = TacticalBoard.Manager.Instance.Board.GetNode(x, y);
-				SpaceBoardNodeComponent nodeComp = obj.GetComponent<SpaceBoardNodeComponent>();
-				if ((node != null) && (nodeComp != null))
-				{
-					this.NodeMap.Add(node.Id, nodeComp);
-				}
+//				TacticalBoard.GridNode node = TacticalBoard.Manager.Instance.Board.GetNode(x, y);
+//				SpaceBoardNodeComponent nodeComp = obj.GetComponent<SpaceBoardNodeComponent>();
+//				if ((node != null) && (nodeComp != null))
+//				{
+//					this.NodeMap.Add(node.Id, nodeComp);
+//				}
 			}
 		}
 	}

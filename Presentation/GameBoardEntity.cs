@@ -38,7 +38,7 @@ public class GameBoardEntity : MonoBehaviour
 	void Awake()
 	{
 		this.Mover = this.GetComponent<ShipMover>();
-		this.Params = new TacticalBoard.EntityParams();
+		this.Params = new TacticalBoard.EntityParams(this.name);
 	}
 
 	void Start()
@@ -77,7 +77,7 @@ public class GameBoardEntity : MonoBehaviour
 
 		this.Params = p;
 		this.move = this.Params.move;
-		this.range = this.Params.range;
+		this.range = this.Params.attackRange;
 		this.attack = this.Params.attack;
 		this.armour = this.Params.armour;
 		this.shield = this.Params.shield;

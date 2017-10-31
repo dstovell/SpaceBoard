@@ -6,17 +6,14 @@ namespace TacticalBoard
 {
 	public class NetServerPlayer : Player
 	{
-		public uint Id;
-
 		private NetServerGame Game;
 		private NetServer Server;
 
 		private Hazel.Connection Conn;
 
-		private EntityParams [] Entities;
-
-		public NetServerPlayer(NetServer server, Hazel.Connection conn) : base(0, PlayerTeam.Neutral, ConnectionState.Connecting)
+		public NetServerPlayer(uint playerId, NetServer server, Hazel.Connection conn) : base(playerId, PlayerTeam.Neutral, ConnectionState.Connecting)
 		{
+			this.Id = playerId;
 			this.Server = server;
 			this.Conn = conn;
 			this.AddListeners();
@@ -41,7 +38,7 @@ namespace TacticalBoard
 			this.Conn.Disconnected -= this.OnDisconnect;
 		}
 
-		public void AssignToGame(uint gameId, NetServerGame game)
+		public void AssignToGame(uint gameId, PlayerTeam team, NetServerGame game)
 		{
 			this.GameId = gameId;
 			this.Game = game;
@@ -77,18 +74,17 @@ namespace TacticalBoard
 
 		private void OnDisconnect(object obj, Hazel.DisconnectedEventArgs arg)
 		{
-			if (!this.IsConnected())
-			{
-				if (this.Server != null)
-				{
-					this.Server.OnDisconnect(this, obj, arg);
-				}
-				return;
-			}
+			Debug.Log("Player " + this.Id + " got a disconnect");
+
+			this.RemoveListeners();
 
 			if (this.Game != null)
 			{
 				this.Game.OnDisconnect(this, obj, arg);
+			}
+			else if (this.Server != null)
+			{
+				this.Server.OnDisconnect(this, obj, arg);
 			}
 		}
 	}

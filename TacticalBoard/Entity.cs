@@ -3,70 +3,6 @@ using System.Collections.Generic;
 
 namespace TacticalBoard
 {
-	public class EntityParams
-	{
-		public enum DamageType
-		{
-			Kinetic,
-			Explosive,
-			Electrical,
-			Light
-		}
-
-		public enum LightType
-		{
-			None,
-			Arc,
-			Solar,
-			Void
-		}
-
-		public EntityParams()
-		{
-		}
-
-		public EntityParams(EntityParams p)
-		{
-			this.Copy(p);
-		}
-
-		public void Copy(EntityParams p)
-		{
-			this.move = p.move;
-			this.range = p.range;
-			this.attack = p.attack;
-			this.armour = p.armour;
-			this.shield = p.shield;
-
-			this.attackType = p.attackType;
-			this.attackLightType = p.attackLightType;
-			this.sheildLightType = p.sheildLightType;
-
-			this.x = p.x;
-			this.y = p.y;
-		}
-
-		public int move = 1;
-		public float range = 1.0f;
-		public int attack = 1;
-		public int armour = 1;
-		public int shield = 1;
-
-		public DamageType attackType = DamageType.Kinetic;
-		public LightType attackLightType = LightType.None;
-		public LightType sheildLightType = LightType.None;
-
-		public int x = 0;
-		public int y = 0;
-	}
-
-	public class EntityData
-	{
-		public string Id;
-		public EntityParams Base;
-		public EntityParams [] Mods;
-	}
-
 	public class EntityAssesment
 	{
 		public int pathDistance;
@@ -102,7 +38,7 @@ namespace TacticalBoard
 			this.pathDistance = (this.pathTo != null) ? (this.pathTo.Count - 1) : -1;
 			this.stepTowards = (this.pathDistance > 0) ? this.pathTo[0] : null;
 
-			float maxRange = us.Current.range;
+			float maxRange = us.Current.attackRange;
 
 			this.rangeTo = Math.Distance(us, them);
 			this.turnsToReach = us.TurnsToTravel(this.pathTo);
@@ -178,21 +114,9 @@ namespace TacticalBoard
 			this.Reset();
 		}
 
-		public int X
-		{
-			get
-			{
-				return (this.Current != null) ? this.Current.x : 0;
-			}
-		}
+		public int X;
 
-		public int Y
-		{
-			get
-			{
-				return (this.Current != null) ? this.Current.y : 0;
-			}
-		}
+		public int Y;
 
 		public long TurnCount
 		{
@@ -240,9 +164,130 @@ namespace TacticalBoard
 			return false;
 		}
 
-		public bool Damage(int amount, EntityParams.DamageType type = EntityParams.DamageType.Kinetic, EntityParams.LightType lightType = EntityParams.LightType.None)
+		public bool IsShielded()
 		{
+			return (this.Current.shield > 0);
+		}
+
+		public bool IsDead()
+		{
+			return (this.Current.armour > 0);
+		}
+
+		public static int DamageModifier(EntityParams.DamageType damageType, EntityParams.LightType damageLightType, EntityParams.LightType shieldLightType)
+		{
+			int modifier = 0;
+
+			//No shields
+			if (shieldLightType == EntityParams.LightType.None)
+			{
+				//Light weapons are weak against shields
+				if (damageType == EntityParams.DamageType.Light)
+				{
+					modifier = -1;
+				}
+				//Explosive weapons do more damage against armour
+				else if (damageType == EntityParams.DamageType.Explosive)
+				{
+					modifier = 1;
+				}
+			}
+			else
+			//Shields
+			{
+				//Light weapons interact differently depending on the shield light type
+				if (damageType == EntityParams.DamageType.Light)
+				{
+					if (shieldLightType == EntityParams.LightType.Blue)
+					{
+					}
+					else if (shieldLightType == EntityParams.LightType.Green)
+					{
+					}
+					else if (shieldLightType == EntityParams.LightType.Purple)
+					{
+					}
+					else if (shieldLightType == EntityParams.LightType.Red)
+					{
+					}
+				}
+				//Explosive weapons do less damage against shields
+				else if (damageType == EntityParams.DamageType.Explosive)
+				{
+					modifier = -1;
+				}
+			}
+
+			return modifier;
+		}
+
+		private bool Damage(int amount, EntityParams.DamageType type = EntityParams.DamageType.Kinetic, EntityParams.LightType lightType = EntityParams.LightType.None)
+		{
+			if (!this.IsActive() || this.IsDead())
+			{
+				return false;
+			}
+
+			int remainingDamage = amount;
+
+			//Shields take damage first
+			if (this.IsShielded())
+			{
+				int actualShieldDamage = remainingDamage + Entity.DamageModifier(type, lightType, this.Current.shieldLightType);
+				actualShieldDamage = System.Math.Min(actualShieldDamage, this.Current.shield);
+
+				//If this entity has damageSpillOver ability, allow surplus of un-modified damage to spill over to the armour
+				if (this.Current.damageSpillOver)
+				{
+					remainingDamage = System.Math.Max(0, (remainingDamage - this.Current.shield));
+				}
+				//If this entity doesn't has damageSpillOver ability, ignore any remaining damage
+				else
+				{
+					remainingDamage = 0;
+				}
+
+				this.Current.shield -= actualShieldDamage;
+			}
+			
+			//If there are no shields, or there is a spill over, damage armour
+			if (remainingDamage > 0)
+			{
+				int actualArmourDamage = remainingDamage + Entity.DamageModifier(type, lightType, EntityParams.LightType.None);
+
+				if (actualArmourDamage > this.Current.armour)
+				{
+					actualArmourDamage = this.Current.armour;
+				}
+
+				this.Current.armour -= actualArmourDamage;
+			}
 			return true;
+		}
+
+		private bool OnAttack(Entity attacker)
+		{
+			if ((attacker == null) || !attacker.IsActive() || !this.IsActive())
+			{
+				return false;
+			}
+
+			EntityParams p = attacker.Current;
+			bool didDamage = this.Damage(p.attack, p.attackType, p.attackLightType);
+
+			return didDamage;
+		}
+
+		public bool Attack(Entity target)
+		{
+			if ((target == null) || (!this.IsActive()))
+			{
+				return false;
+			}
+
+			bool didDamage = target.OnAttack(this);
+
+			return didDamage;
 		}
 
 		public bool IsDeployed()
@@ -348,8 +393,8 @@ namespace TacticalBoard
 			TacticalBoard.Debug.Log("Entity.MoveTo " + this.Position.x + "," + this.Position.y);
 			if (this.Current != null)
 			{
-				this.Current.x = this.Position.x;
-				this.Current.y = this.Position.y;
+				this.X = this.Position.x;
+				this.Y = this.Position.y;
 				return true;
 			}
 

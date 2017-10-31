@@ -21,15 +21,13 @@ namespace TacticalBoard
 
 		public abstract int Serialize(int n);
 		public abstract uint Serialize(uint n);
+		public abstract uint [] Serialize(uint [] n);
 
 		public abstract short Serialize(short n);
 		public abstract ushort Serialize(ushort n);
 
 		public abstract long Serialize(long n);
 		public abstract ulong Serialize(ulong n);
-
-
-		//public abstract void Serialize(float n);
 	}
 
 	public class WriteSerializer : Serializer
@@ -66,6 +64,17 @@ namespace TacticalBoard
 		public override uint Serialize(uint n)
 		{
 			this.WriteBytes( System.BitConverter.GetBytes(n) );
+			return n;
+		}
+
+		public override uint [] Serialize(uint [] n)
+		{
+			ushort length = (ushort)n.Length;
+			this.Serialize(length);
+			for (ushort i=0; i<length; i++)
+			{
+				this.Serialize(n[i]);
+			}
 			return n;
 		}
 
@@ -112,6 +121,18 @@ namespace TacticalBoard
 			uint value = System.BitConverter.ToUInt32(this.data, this.index);
 			this.index += sizeof(uint);
 			return value;
+		}
+
+		public override uint [] Serialize(uint [] n)
+		{
+			ushort length = 0;
+			length = this.Serialize(length);
+			n = new uint[length];
+			for (ushort i=0; i<length; i++)
+			{
+				this.Serialize(n[i]);
+			}
+			return n;
 		}
 
 		public override short Serialize(short n)
