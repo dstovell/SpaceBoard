@@ -116,6 +116,14 @@ namespace TacticalBoard
 			return newGame;
 		}
 
+		public void Update()
+		{
+			foreach (KeyValuePair<uint,NetServerGame> pair in this.Games)
+			{
+				pair.Value.Update();
+			}
+		}
+
 		public void OnData(NetServerPlayer p, object obj, Hazel.DataReceivedEventArgs arg)
 		{
 			//This will be data about who the client is and what game they want
@@ -169,11 +177,12 @@ namespace TacticalBoard
 			NetServer server = new NetServer(port);
 			server.Start();
 
-			Debug.Log("Press any key to exit");
-
-			#if !UNITY_5
-            System.Console.ReadKey();
-            #endif
+			Debug.Log("Press Ctrl+C to exit");
+			while (true)
+			{
+				server.Update();
+				System.Threading.Thread.Sleep(10);
+			}
 	    }
 	}
 }

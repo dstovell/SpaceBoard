@@ -187,6 +187,7 @@ namespace TacticalBoard
 		public static Dictionary<uint,LevelParams> Levels;
 
 		public static long MillisecondsPerTurn = 2000;
+		public static long MillisecondsDelayStart = 3000;
 		public static int DefaultSizeX = 4;
 		public static int DefaultSizeY = 7;
 

@@ -9,6 +9,7 @@ namespace TacticalBoard
 		public NetServerGame(uint id) : base(id)
 		{
 			this.LoadRandomLevel();
+			this.State = GameState.WaitingToConnect;
 		}
 
 		public override long GetTime()
@@ -41,6 +42,11 @@ namespace TacticalBoard
 
 			GameJoined gj = new GameJoined(this.Id, p.Id, this.LevelId, team, this.GetTime());
 			p.Send(gj, Hazel.SendOption.Reliable);
+
+			if (this.State == GameState.WaitingToConnect)
+			{
+				this.State = GameState.WaitingForPlayers;
+			}
 		}
 
 		public void SendToPlayers(NetMessage msg, Hazel.SendOption sendOption = Hazel.SendOption.Reliable)
@@ -65,6 +71,25 @@ namespace TacticalBoard
 				if (p.IsConnected())
 				{
 					p.Send(data, sendOption);
+				}
+			}
+		}
+
+		public void Update()
+		{
+			base.Update();
+
+			if (this.State == GameState.WaitingForPlayers)
+			{
+				if (this.Players.Count == Game.MaxPlayers)
+				{
+					long now = this.GetTime();
+					this.StartTime = now + TacticalBoard.Data.MillisecondsDelayStart;
+					this.State = GameState.WaitingForStart;
+
+					Debug.Log("MaxPlayers Reached, Starting Game at " + this.StartTime);	
+					GameStart gs = new GameStart(this.StartTime);
+					this.SendToPlayers(gs, Hazel.SendOption.Reliable);
 				}
 			}
 		}

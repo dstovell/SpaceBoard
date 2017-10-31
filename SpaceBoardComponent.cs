@@ -13,10 +13,6 @@ public class SpaceBoardComponent : MonoBehaviour
 
 	public GameObject BoardNodePrefab;
 
-	private float TimeSinceUpdate = 0.0f;
-
-	//private TacticalBoard.Manager Board;
-
 	public static SpaceBoardComponent Instance;
 
 	public Dictionary<ushort,SpaceBoardNodeComponent> NodeMap;
@@ -120,17 +116,11 @@ public class SpaceBoardComponent : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate() 
 	{
-		this.TimeSinceUpdate += Time.fixedDeltaTime;
-
-		if (this.TimeSinceUpdate > this.SecondsPerTurn)
+		if (TacticalBoard.Manager.Instance != null)
 		{
-			if (TacticalBoard.Manager.Instance != null)
-			{
-				TacticalBoard.Manager.Instance.Update();
-				this.TimeSinceUpdate = 0.0f;
-				//Debug.Log("TurnCount=" + this.Board.TurnCount + " " + this.Board.Entites.Count);
-			}
+			TacticalBoard.Manager.Instance.Update();
+			this.TurnCount = TacticalBoard.Manager.Instance.TurnCount;
 		}
-		this.TurnCount = TacticalBoard.Manager.Instance.TurnCount;
+
 	}
 }

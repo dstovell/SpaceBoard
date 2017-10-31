@@ -5,7 +5,7 @@ namespace TacticalBoard
 {
 	public class Game
 	{
-		static uint MaxPlayers = 2;
+		public static uint MaxPlayers = 1;
 
 		public enum SimType
 		{
@@ -75,6 +75,7 @@ namespace TacticalBoard
 			LevelParams lp = Data.Levels.ContainsKey(level) ? Data.Levels[level] : null;
 			if (lp != null)
 			{
+				Debug.Log("LoadLevel " + lp.StringId + " " + level);
 				this.LevelId = level;
 				this.CreateBoard(lp);
 			}
@@ -124,7 +125,7 @@ namespace TacticalBoard
 		public uint LevelId;
 		public Grid Board;
 
-		private long LastTurnUpdate = 0;
+		protected long LastTurnUpdate = 0;
 
 		public List<Entity> Entites;
 		public Dictionary<uint, Entity> EntityMap;
@@ -140,11 +141,11 @@ namespace TacticalBoard
 		public void Update()
 		{
 			long now = this.GetTime();
-			bool hasStarted = (this.StartTime <= now);
-			bool hasEnded = (this.EndTime > now);
+			bool hasStarted = ((this.StartTime != 0) && (this.StartTime <= now));
+			bool hasEnded = ((this.EndTime != 0) && (this.EndTime > now));
 			bool inTimeFrame = (hasStarted && !hasEnded);
 
-			if (!hasStarted || (this.State == GameState.Ended))
+			if (this.State == GameState.Ended)
 			{
 				return;
 			}
@@ -153,6 +154,7 @@ namespace TacticalBoard
 			{
 				if (inTimeFrame)
 				{
+					Debug.Log("Running " + this.GetTime());
 					this.State  = GameState.Running;
 				}
 				else
@@ -167,12 +169,9 @@ namespace TacticalBoard
 
 				if (timeSinceLastUpdate > Data.MillisecondsPerTurn)
 				{
-					if (TacticalBoard.Manager.Instance != null)
-					{
-						UpdateTurn();
-						this.LastTurnUpdate = now;
-						//Debug.Log("TurnCount=" + this.Board.TurnCount + " " + this.Board.Entites.Count);
-					}
+					UpdateTurn();
+					this.LastTurnUpdate = (this.LastTurnUpdate != 0) ? (this.LastTurnUpdate + Data.MillisecondsPerTurn) : now;
+					Debug.Log("TurnCount=" + this.TurnCount + " " + this.Entites.Count + " time=" + this.GetTime());
 				}
 			}
 		}
@@ -271,7 +270,12 @@ namespace TacticalBoard
 
 		public void HandleGameStart(GameStart msg)
 		{
-			
+			if (this.State == GameState.WaitingForPlayers)
+			{
+				this.StartTime = msg.AtTime;
+				this.State = GameState.WaitingForStart;
+				Debug.Log("Starting Game at: " + this.StartTime);
+			}
 		}
 
 		public void HandleGameEnd(GameEnd msg)
