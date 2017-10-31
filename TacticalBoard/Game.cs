@@ -171,7 +171,7 @@ namespace TacticalBoard
 				{
 					UpdateTurn();
 					this.LastTurnUpdate = (this.LastTurnUpdate != 0) ? (this.LastTurnUpdate + Data.MillisecondsPerTurn) : now;
-					Debug.Log("TurnCount=" + this.TurnCount + " " + this.Entites.Count + " time=" + this.GetTime());
+					//Debug.Log("TurnCount=" + this.TurnCount + " " + this.Entites.Count + " time=" + this.GetTime());
 				}
 			}
 		}
