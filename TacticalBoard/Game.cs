@@ -119,10 +119,10 @@ namespace TacticalBoard
 		}
 
 		public uint Id;
-		public long StartTime = 0;
-		public long EndTime = 0;
-		public long TurnCount = 0;
-		public uint LevelId;
+		public long StartTime { get; protected set; }
+		public long EndTime { get; protected set; }
+		public long TurnCount { get; protected set; }
+		public uint LevelId	{ get; protected set; }
 		public Grid Board;
 
 		protected long LastTurnUpdate = 0;

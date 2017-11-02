@@ -7,21 +7,15 @@ namespace TacticalBoard
 	{
 		public static TacticalBoard.Manager Instance = null;
 
-		public long TurnCount = 0;
-
-		public Grid Board;
+		public long TurnCount
+		{
+			get
+			{
+				return (this.CurrentGame != null) ? this.CurrentGame.TurnCount : 0;
+			}
+		}
 
 		public Game CurrentGame;
-
-		public List<Entity> Entites;
-		public Dictionary<uint, Entity> EntityMap;
-
-		public List<Player> Players;
-		public Dictionary<uint, Player> PlayerMap;
-
-		private Dictionary<uint, uint> EntityCounts;
-
-		private NetClient Client;
 
 		public static void Init()
 		{
