@@ -138,7 +138,7 @@ namespace TacticalBoard
 		private InterventionsManager Interventions;
 		private NetClient Client;
 
-		public void Update()
+		public virtual void Update()
 		{
 			long now = this.GetTime();
 			bool hasStarted = ((this.StartTime != 0) && (this.StartTime <= now));

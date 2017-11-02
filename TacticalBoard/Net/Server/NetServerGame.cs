@@ -75,7 +75,7 @@ namespace TacticalBoard
 			}
 		}
 
-		public void Update()
+		public override void Update()
 		{
 			base.Update();
 
