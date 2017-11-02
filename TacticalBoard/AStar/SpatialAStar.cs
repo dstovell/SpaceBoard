@@ -381,9 +381,8 @@ namespace AStar
 
             public void Add(PathNode inValue)
             {
-                PathNode item = m_Map[inValue.X, inValue.Y];
-
 #if DEBUG
+				PathNode item = m_Map[inValue.X, inValue.Y];
                 if (item != null)
                     throw new ApplicationException();
 #endif
@@ -409,9 +408,8 @@ namespace AStar
 
             public void Remove(PathNode inValue)
             {
-                PathNode item = m_Map[inValue.X, inValue.Y];
-
 #if DEBUG
+				PathNode item = m_Map[inValue.X, inValue.Y];
                 if (!inValue.Equals(item))
                     throw new ApplicationException();
 #endif
