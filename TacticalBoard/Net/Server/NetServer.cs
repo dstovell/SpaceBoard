@@ -43,10 +43,12 @@ namespace TacticalBoard
 			Debug.Log("sender=" + sender + " HandshakeData=" + a.HandshakeData.Length);
         	Hazel.Connection newConn = a.Connection;
 
-			if (a.HandshakeData.Length > 0)
+        	int handShakeHeader = 3;
+
+			if (a.HandshakeData.Length > handShakeHeader)
 			{
 	        	Handshake hs = new Handshake();
-				NetMessageHub.DeSerializeData(hs, a.HandshakeData);
+				NetMessageHub.DeSerializeData(hs, a.HandshakeData, handShakeHeader);
 				Debug.Log("Handshake playerId=" + hs.playerId + " secret=" + hs.secret);
 
 				NetServerPlayer newPlayer = new NetServerPlayer(hs.playerId, this, newConn);
