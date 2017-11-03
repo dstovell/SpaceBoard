@@ -69,7 +69,7 @@ namespace TacticalBoard
 
 		public override uint [] Serialize(uint [] n)
 		{
-			ushort length = (ushort)n.Length;
+			ushort length = (ushort)( (n != null) ? n.Length : 0 );
 			this.Serialize(length);
 			for (ushort i=0; i<length; i++)
 			{
@@ -130,7 +130,7 @@ namespace TacticalBoard
 			n = new uint[length];
 			for (ushort i=0; i<length; i++)
 			{
-				this.Serialize(n[i]);
+				n[i] = this.Serialize(n[i]);
 			}
 			return n;
 		}

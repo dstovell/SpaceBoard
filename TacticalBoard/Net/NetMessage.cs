@@ -42,6 +42,7 @@ namespace TacticalBoard
 
 		public uint secret;
 		public uint playerId;
+		public uint [] entites;
 
 		public Handshake() : base(NetMessageType.Handshake)
 		{
@@ -53,6 +54,7 @@ namespace TacticalBoard
 			base.OnSerialize(s);
 			this.secret = s.Serialize(this.secret);
 			this.playerId = s.Serialize(this.playerId);
+			this.entites = s.Serialize(this.entites);
 		}
 	}
 

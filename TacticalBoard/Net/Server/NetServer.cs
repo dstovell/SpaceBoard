@@ -49,7 +49,7 @@ namespace TacticalBoard
 			{
 	        	Handshake hs = new Handshake();
 				NetMessageHub.DeSerializeData(hs, a.HandshakeData, handShakeHeader);
-				Debug.Log("Handshake playerId=" + hs.playerId + " secret=" + hs.secret);
+				Debug.Log("Handshake playerId=" + hs.playerId + " secret=" + hs.secret + " [" + hs.entites[0] + "," + hs.entites[1] + "," + hs.entites[2] + "]");
 
 				NetServerPlayer newPlayer = new NetServerPlayer(hs.playerId, this, newConn);
 
