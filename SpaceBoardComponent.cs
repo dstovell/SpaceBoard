@@ -33,29 +33,29 @@ public class SpaceBoardComponent : MonoBehaviour
 
 	public void CreateEntity(TacticalBoard.PlayerTeam team, uint playerId, string id, int warpToX, int warpToY)
 	{
-		return;
-		SpaceBoardEntityData data = SpaceBoardEntityManager.Instance.GetEntityData(id);
-		//Debug.LogError("CreateEntity team=" + team.ToString() + " playerId=" + playerId + " id=" + id + " warpTo=" + warpToX + "," + warpToY + " data=" + data);
-		if (data == null)
-		{
-			return;
-		}
-
-		TacticalBoard.CloseAndAttackBrain br = new TacticalBoard.CloseAndAttackBrain();
-
-		TacticalBoard.GridNode nodeToWarpTo = TacticalBoard.Manager.Instance.Board.GetNode(warpToX, warpToY);
-
-		TacticalBoard.Entity e = null;//TacticalBoard.Manager.Instance.AddEntity(team, playerId, data.Params, br);
-
-		Vector3 pos = new Vector3(this.GetX(warpToX), 0, this.GetY(warpToY) - 200);
-		GameObject obj = SpaceBoardEntityManager.Instance.CreateGameBoardEntity(id, pos, Quaternion.identity);
-		obj.transform.localScale = new Vector3(data.PrefabScale, data.PrefabScale, data.PrefabScale);
-
-		GameBoardEntity comp = obj.GetComponent<GameBoardEntity>();
-		comp.PlayerId = playerId;
-		comp.Entity = e;
-
-		e.RequestDeployment(nodeToWarpTo);
+//		return;
+//		SpaceBoardEntityData data = SpaceBoardEntityManager.Instance.GetEntityData(id);
+//		//Debug.LogError("CreateEntity team=" + team.ToString() + " playerId=" + playerId + " id=" + id + " warpTo=" + warpToX + "," + warpToY + " data=" + data);
+//		if (data == null)
+//		{
+//			return;
+//		}
+//
+//		TacticalBoard.CloseAndAttackBrain br = new TacticalBoard.CloseAndAttackBrain();
+//
+//		TacticalBoard.GridNode nodeToWarpTo = TacticalBoard.Manager.Instance.CurrentGame.Board.GetNode(warpToX, warpToY);
+//
+//		TacticalBoard.Entity e = null;//TacticalBoard.Manager.Instance.AddEntity(team, playerId, data.Params, br);
+//
+//		Vector3 pos = new Vector3(this.GetX(warpToX), 0, this.GetY(warpToY) - 200);
+//		GameObject obj = SpaceBoardEntityManager.Instance.CreateGameBoardEntity(id, pos, Quaternion.identity);
+//		obj.transform.localScale = new Vector3(data.PrefabScale, data.PrefabScale, data.PrefabScale);
+//
+//		GameBoardEntity comp = obj.GetComponent<GameBoardEntity>();
+//		comp.PlayerId = playerId;
+//		comp.Entity = e;
+//
+//		e.RequestDeployment(nodeToWarpTo);
 	}
 
 	public float GetX(int x)
@@ -75,7 +75,7 @@ public class SpaceBoardComponent : MonoBehaviour
 
 	public SpaceBoardNodeComponent GetNode(int x, int y)
 	{
-		TacticalBoard.GridNode node = TacticalBoard.Manager.Instance.Board.GetNode(x, y);
+		TacticalBoard.GridNode node = TacticalBoard.Manager.Instance.CurrentGame.Board.GetNode(x, y);
 		if (node == null)
 		{
 			return null;
