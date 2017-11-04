@@ -53,6 +53,9 @@ namespace TacticalBoard
 
 				NetServerPlayer newPlayer = new NetServerPlayer(hs.playerId, this, newConn);
 
+				newPlayer.Entities = hs.entites;
+				//hs.entites = null;
+
 				NetServerGame game = this.MatchmakeFromExisting(newPlayer);
 
 				if (game == null)

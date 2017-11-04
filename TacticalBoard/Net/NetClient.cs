@@ -33,6 +33,14 @@ namespace TacticalBoard
 		{
 			Handshake hs = new Handshake();
 			hs.playerId = 100001;
+			hs.entites = new uint[3];
+
+			uint hash = Data.GetHash("Frigate");
+
+			hs.entites[0] = hash;
+			hs.entites[1] = hash;
+			hs.entites[2] = hash;
+			Debug.Log("Frigate => " + hash);
 
 			byte [] buffer = NetMessageHub.SerializeData(hs);
 			this.Conn.Connect(buffer); 
@@ -42,6 +50,10 @@ namespace TacticalBoard
 		{
 			Handshake hs = new Handshake();
 			hs.playerId = p.Id;
+			hs.entites = new uint[3];
+			hs.entites[0] = Data.GetHash("Frigate");
+			hs.entites[1] = Data.GetHash("Frigate");
+			hs.entites[2] = Data.GetHash("Frigate");
 
 			byte [] buffer = NetMessageHub.SerializeData(hs);
 			this.Conn.Connect(buffer); 

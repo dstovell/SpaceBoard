@@ -31,13 +31,14 @@ namespace TacticalBoard
 			this.Id = id;
 			this.Team = team;
 			this.State = state;
+			Debug.Log("Create Player " + id + " team=" + team);
 		}
 
 		public uint Id;
 		public uint GameId;
 		public PlayerTeam Team;
 
-		public string [] Entities;
+		public uint [] Entities;
 	}
 }
 

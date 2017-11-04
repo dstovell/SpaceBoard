@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace TacticalBoard
 {
@@ -181,7 +182,21 @@ namespace TacticalBoard
 
 	public static class Data
 	{
-		public static uint GetHash(string s) { return ((uint)s.GetHashCode()); }
+		private static MD5 md5Hasher;
+
+		public static uint GetHash(string s) 
+		{ 
+			if (md5Hasher == null)
+			{
+				md5Hasher = MD5.Create();
+			}
+
+			byte [] hashBytes = md5Hasher.ComputeHash(System.Text.Encoding.UTF8.GetBytes(s));
+			return System.BitConverter.ToUInt32(hashBytes, 0);
+		}
+
+		public static EntityParams GetEntityData(uint id) { return Entites.ContainsKey(id) ? Entites[id] : null; }
+		public static LevelParams GetLevelData(uint id) { return Levels.ContainsKey(id) ? Levels[id] : null; }
 
 		public static Dictionary<uint,EntityParams> Entites;
 		public static Dictionary<uint,LevelParams> Levels;

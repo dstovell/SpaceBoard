@@ -30,17 +30,30 @@ namespace TacticalBoard
 				return;
 			}
 
+			PlayerTeam team = (this.Players.Count == 0) ? PlayerTeam.TeamA : PlayerTeam.TeamB;
+
+			Debug.Log("Player " + p.Id + " has joined game " + this.Id + " as " + team.ToString() + " Entities=" + p.Entities.Length);
+
 			//Send this first so the player joining won't get it
-			PlayerJoin msg = new PlayerJoin(p.Id);
+			PlayerJoin msg = new PlayerJoin(p.Id, team, p.Entities);
 			this.SendToPlayers(msg, Hazel.SendOption.Reliable);
 
-			PlayerTeam team = (this.Players.Count == 0) ? PlayerTeam.TeamA : PlayerTeam.TeamB;
 			this.Players.Add(p);
+			this.EntityCounts[p.Id] = 0;
+			for (int i=0; i<p.Entities.Length; i++)
+			{
+				EntityParams ep = Data.GetEntityData(p.Entities[i]);
+				Debug.Log("Entity " + i + " id=" + p.Entities[i] + " ep=" + ep);
+				if (ep != null)
+				{
+					this.AddEntity(p.Team, p.Id, ep, new CloseAndAttackBrain());
+				}
+			}
+
 			p.AssignToGame(this.Id, team, this);
 
-			Debug.Log("Player " + p.Id + " has joined game " + this.Id + " as " + team.ToString() );
+			GameJoined gj = new GameJoined(this.Id, p.Id, p.Entities, this.LevelId, team, this.GetTime());
 
-			GameJoined gj = new GameJoined(this.Id, p.Id, this.LevelId, team, this.GetTime());
 			p.Send(gj, Hazel.SendOption.Reliable);
 
 			if (this.State == GameState.WaitingToConnect)

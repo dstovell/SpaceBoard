@@ -15,7 +15,7 @@ public class SpaceBoardTestLevel : MonoBehaviour
 		//TacticalBoard.Player player2 = SpaceBoardComponent.Instance.CreatePlayer(player2Id, TacticalBoard.PlayerTeam.TeamB);
 		//SpaceBoardComponent.Instance.CreateEntity(player2.Team, player2.Id, "Frigate_Predator_Black", 3, 6);
 
-		//TacticalBoard.Manager.Instance.JoinGame(0, "174.138.62.138", TacticalBoard.NetServer.DefaultPort);
+		//TacticalBoard.Manager.Instance.FindGame("174.138.62.138", TacticalBoard.NetServer.DefaultPort);
 		TacticalBoard.Manager.Instance.FindGame("127.0.0.1", TacticalBoard.NetServer.DefaultPort);
 	}
 }

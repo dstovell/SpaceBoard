@@ -10,6 +10,7 @@ namespace TacticalBoard
 		public static void AddEntityData(Dictionary<uint,EntityParams> map, string name, EntityClass.Type type, AddEntityDataDelegate cb)
 		{
 			EntityParams ep = new EntityParams(name);
+			Debug.Log("AddEntityData " + name + " id=" + ep.Id);
 			EntityClass.ApplyDefaults(type, ep);
 			if (cb != null)
 			{

@@ -70,13 +70,13 @@ namespace TacticalBoard
 			this.Client.Connect();
 		}
 
-		public void LoadLevel(uint level)
+		public void LoadLevel(uint levelId)
 		{
-			LevelParams lp = Data.Levels.ContainsKey(level) ? Data.Levels[level] : null;
+			LevelParams lp = Data.GetLevelData(levelId);
 			if (lp != null)
 			{
-				Debug.Log("LoadLevel " + lp.StringId + " " + level);
-				this.LevelId = level;
+				Debug.Log("LoadLevel " + lp.StringId + " " + levelId);
+				this.LevelId = levelId;
 				this.CreateBoard(lp);
 			}
 		}
@@ -85,7 +85,7 @@ namespace TacticalBoard
 		{
 			string levelName = "Test01";
 			uint levelId = Data.GetHash(levelName);
-			LevelParams lp = Data.Levels.ContainsKey(levelId) ? Data.Levels[levelId] : null;
+			LevelParams lp = Data.GetLevelData(levelId);
 			if (lp != null)
 			{
 				Debug.Log("LoadRandomLevel " + levelName + " " + lp.Id + " size=" + lp.SizeX + "," + lp.SizeY);
@@ -133,9 +133,10 @@ namespace TacticalBoard
 		public List<Player> Players;
 		public Dictionary<uint, Player> PlayerMap;
 
-		private Dictionary<uint, uint> EntityCounts;
+		protected Dictionary<uint, uint> EntityCounts;
 
-		private InterventionsManager Interventions;
+		protected InterventionsManager Interventions;
+
 		private NetClient Client;
 
 		public virtual void Update()
@@ -224,12 +225,13 @@ namespace TacticalBoard
 			uint newId = this.EntityCounts[playerId];
 
 			string hashableString = string.Format("{0}_{1}", playerId, newId);
-			return (uint)hashableString.GetHashCode();
+			return (uint)Data.GetHash(hashableString);
 		}
 
 		public Entity AddEntity(PlayerTeam team, uint playerId, EntityParams ep, Brain br = null)
 		{
 			uint newId = this.GenerateEntityId(playerId);
+			Debug.Log("AddEntity id=" + ep.Id + " " + team + " playerId=" + playerId + " instanceId=" + newId);
 
 			Entity e = new Entity(newId, team, playerId, this.Board, ep, br);
 			this.Entites.Add(e);
@@ -240,12 +242,15 @@ namespace TacticalBoard
 
 		public Player AddPlayer(uint id, PlayerTeam team)
 		{
+			Player p = null;
 			if (this.PlayerMap.ContainsKey(id))
 			{
-				return this.PlayerMap[id];
+				p = this.PlayerMap[id];
+				p.Team = team;
+				return p;
 			}
 
-			Player p = new Player(id, team);
+			p = new Player(id, team);
 			this.Players.Add(p);
 			this.Players.Sort(this.PlayerComparer);
 			this.PlayerMap[id] = p;
@@ -260,8 +265,24 @@ namespace TacticalBoard
 
 		public void HandleGameJoined(GameJoined msg)
 		{
+			Debug.Log("HandleGameJoined gameId=" + msg.GameId + " PlayerId=" + msg.PlayerId + " Entities=" + msg.Entities.Length);
 			this.Id = msg.GameId;
 			this.State = GameState.WaitingForPlayers;
+
+			Player p = this.AddPlayer(msg.PlayerId, msg.Team);
+			p.Entities = msg.Entities;
+
+			Debug.Log("   Entities=" + msg.Entities.Length);
+			for (int i=0; i<msg.Entities.Length; i++)
+			{
+				Debug.Log("Entity " + i + " id=" + p.Entities[i]);
+				EntityParams ep = Data.GetEntityData(msg.Entities[i]);
+				Debug.Log("Entity " + i + " id=" + p.Entities[i] + " ep=" + ep);
+				if (ep != null)
+				{
+					this.AddEntity(p.Team, p.Id, ep, new CloseAndAttackBrain());
+				}
+			}
 
 			this.SetDeltaTime(msg.ServerTime);
 

@@ -10,6 +10,7 @@ namespace TacticalBoard
 		public static void AddLevelData(Dictionary<uint,LevelParams> map, string name, AddLevelDataDelegate cb)
 		{
 			LevelParams lp = new LevelParams(name, Data.DefaultSizeX, Data.DefaultSizeY);
+			Debug.Log("AddLevelData " + name + " id=" + lp.Id);
 			if (cb != null)
 			{
 				cb(lp);
@@ -24,7 +25,7 @@ namespace TacticalBoard
 
 			AddLevelData(map, "Test01", delegate(LevelParams lp) {
 				string entity = "Frigate";
-				lp.AddPlacement((uint)entity.GetHashCode(), 3, 6);
+				lp.AddPlacement(Data.GetHash(entity), 3, 6);
 			});
 
 			return map;	
