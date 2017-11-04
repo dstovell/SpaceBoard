@@ -272,21 +272,18 @@ namespace TacticalBoard
 			Player p = this.AddPlayer(msg.PlayerId, msg.Team);
 			p.Entities = msg.Entities;
 
-			Debug.Log("   Entities=" + msg.Entities.Length);
-			for (int i=0; i<msg.Entities.Length; i++)
+			this.SetDeltaTime(msg.ServerTime);
+			this.LoadLevel(msg.LevelId);
+
+			int len = msg.Entities.Length;
+			for (int i=0; i<len; i++)
 			{
-				Debug.Log("Entity " + i + " id=" + p.Entities[i]);
 				EntityParams ep = Data.GetEntityData(msg.Entities[i]);
-				Debug.Log("Entity " + i + " id=" + p.Entities[i] + " ep=" + ep);
 				if (ep != null)
 				{
 					this.AddEntity(p.Team, p.Id, ep, new CloseAndAttackBrain());
 				}
 			}
-
-			this.SetDeltaTime(msg.ServerTime);
-
-			this.LoadLevel(msg.LevelId);
 		}
 
 		public void HandleGameStart(GameStart msg)

@@ -39,18 +39,16 @@ namespace TacticalBoard
 			this.SendToPlayers(msg, Hazel.SendOption.Reliable);
 
 			this.Players.Add(p);
+			p.AssignToGame(this.Id, team, this);
 			this.EntityCounts[p.Id] = 0;
 			for (int i=0; i<p.Entities.Length; i++)
 			{
 				EntityParams ep = Data.GetEntityData(p.Entities[i]);
-				Debug.Log("Entity " + i + " id=" + p.Entities[i] + " ep=" + ep);
 				if (ep != null)
 				{
 					this.AddEntity(p.Team, p.Id, ep, new CloseAndAttackBrain());
 				}
 			}
-
-			p.AssignToGame(this.Id, team, this);
 
 			GameJoined gj = new GameJoined(this.Id, p.Id, p.Entities, this.LevelId, team, this.GetTime());
 

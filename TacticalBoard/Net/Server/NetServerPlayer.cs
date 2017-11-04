@@ -42,6 +42,7 @@ namespace TacticalBoard
 		{
 			this.GameId = gameId;
 			this.Game = game;
+			this.Team = team;
 			this.State = ConnectionState.Connected;
 		}
 
