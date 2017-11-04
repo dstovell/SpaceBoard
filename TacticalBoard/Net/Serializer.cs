@@ -21,13 +21,21 @@ namespace TacticalBoard
 
 		public abstract int Serialize(int n);
 		public abstract uint Serialize(uint n);
-		public abstract uint [] Serialize(uint [] n);
 
 		public abstract short Serialize(short n);
 		public abstract ushort Serialize(ushort n);
 
 		public abstract long Serialize(long n);
 		public abstract ulong Serialize(ulong n);
+
+		public abstract int [] Serialize(int [] n);
+		public abstract uint [] Serialize(uint [] n);
+
+		public abstract short [] Serialize(short [] n);
+		public abstract ushort [] Serialize(ushort [] n);
+
+		public abstract long [] Serialize(long [] n);
+		public abstract ulong [] Serialize(ulong [] n);
 	}
 
 	public class WriteSerializer : Serializer
@@ -67,17 +75,6 @@ namespace TacticalBoard
 			return n;
 		}
 
-		public override uint [] Serialize(uint [] n)
-		{
-			ushort length = (ushort)( (n != null) ? n.Length : 0 );
-			this.Serialize(length);
-			for (ushort i=0; i<length; i++)
-			{
-				this.Serialize(n[i]);
-			}
-			return n;
-		}
-
 		public override short Serialize(short n)
 		{
 			this.WriteBytes( System.BitConverter.GetBytes(n) );
@@ -101,6 +98,72 @@ namespace TacticalBoard
 			this.WriteBytes( System.BitConverter.GetBytes(n) );
 			return n;
 		}
+
+		public override int [] Serialize(int [] n)
+		{
+			ushort length = (ushort)( (n != null) ? n.Length : 0 );
+			this.Serialize(length);
+			for (ushort i=0; i<length; i++)
+			{
+				this.Serialize(n[i]);
+			}
+			return n;
+		}
+
+		public override uint [] Serialize(uint [] n)
+		{
+			ushort length = (ushort)( (n != null) ? n.Length : 0 );
+			this.Serialize(length);
+			for (ushort i=0; i<length; i++)
+			{
+				this.Serialize(n[i]);
+			}
+			return n;
+		}
+
+		public override short [] Serialize(short [] n)
+		{
+			ushort length = (ushort)( (n != null) ? n.Length : 0 );
+			this.Serialize(length);
+			for (ushort i=0; i<length; i++)
+			{
+				this.Serialize(n[i]);
+			}
+			return n;
+		}
+
+		public override ushort [] Serialize(ushort [] n)
+		{
+			ushort length = (ushort)( (n != null) ? n.Length : 0 );
+			this.Serialize(length);
+			for (ushort i=0; i<length; i++)
+			{
+				this.Serialize(n[i]);
+			}
+			return n;
+		}
+
+		public override long [] Serialize(long [] n)
+		{
+			ushort length = (ushort)( (n != null) ? n.Length : 0 );
+			this.Serialize(length);
+			for (ushort i=0; i<length; i++)
+			{
+				this.Serialize(n[i]);
+			}
+			return n;
+		}
+
+		public override ulong [] Serialize(ulong [] n)
+		{
+			ushort length = (ushort)( (n != null) ? n.Length : 0 );
+			this.Serialize(length);
+			for (ushort i=0; i<length; i++)
+			{
+				this.Serialize(n[i]);
+			}
+			return n;
+		}
 	}
 
 	public class ReadSerializer : Serializer
@@ -121,18 +184,6 @@ namespace TacticalBoard
 			uint value = System.BitConverter.ToUInt32(this.data, this.index);
 			this.index += sizeof(uint);
 			return value;
-		}
-
-		public override uint [] Serialize(uint [] n)
-		{
-			ushort length = 0;
-			length = this.Serialize(length);
-			n = new uint[length];
-			for (ushort i=0; i<length; i++)
-			{
-				n[i] = this.Serialize(n[i]);
-			}
-			return n;
 		}
 
 		public override short Serialize(short n)
@@ -162,6 +213,78 @@ namespace TacticalBoard
 			ulong value = System.BitConverter.ToUInt64(this.data, this.index);
 			this.index += sizeof(ulong);
 			return value;
+		}
+
+		public override int [] Serialize(int [] n)
+		{
+			ushort length = 0;
+			length = this.Serialize(length);
+			n = new int[length];
+			for (ushort i=0; i<length; i++)
+			{
+				n[i] = this.Serialize(n[i]);
+			}
+			return n;
+		}
+
+		public override uint [] Serialize(uint [] n)
+		{
+			ushort length = 0;
+			length = this.Serialize(length);
+			n = new uint[length];
+			for (ushort i=0; i<length; i++)
+			{
+				n[i] = this.Serialize(n[i]);
+			}
+			return n;
+		}
+
+		public override short [] Serialize(short [] n)
+		{
+			ushort length = 0;
+			length = this.Serialize(length);
+			n = new short[length];
+			for (ushort i=0; i<length; i++)
+			{
+				n[i] = this.Serialize(n[i]);
+			}
+			return n;
+		}
+
+		public override ushort [] Serialize(ushort [] n)
+		{
+			ushort length = 0;
+			length = this.Serialize(length);
+			n = new ushort[length];
+			for (ushort i=0; i<length; i++)
+			{
+				n[i] = this.Serialize(n[i]);
+			}
+			return n;
+		}
+
+		public override long [] Serialize(long [] n)
+		{
+			ushort length = 0;
+			length = this.Serialize(length);
+			n = new long[length];
+			for (ushort i=0; i<length; i++)
+			{
+				n[i] = this.Serialize(n[i]);
+			}
+			return n;
+		}
+
+		public override ulong [] Serialize(ulong [] n)
+		{
+			ushort length = 0;
+			length = this.Serialize(length);
+			n = new ulong[length];
+			for (ushort i=0; i<length; i++)
+			{
+				n[i] = this.Serialize(n[i]);
+			}
+			return n;
 		}
 	}
 
