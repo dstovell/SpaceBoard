@@ -25,7 +25,8 @@ namespace TacticalBoard
 
 			AddLevelData(map, "Test01", delegate(LevelParams lp) {
 				string entity = "Frigate";
-				lp.AddPlacement(Data.GetHash(entity), 3, 6);
+				lp.AddPlacement(Data.GetHash(entity), 3, 6, PlayerTeam.TeamB);
+				lp.AddPlacement(Data.GetHash(entity), 0, 6, PlayerTeam.TeamB);
 			});
 
 			return map;	

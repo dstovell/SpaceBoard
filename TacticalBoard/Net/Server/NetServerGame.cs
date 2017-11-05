@@ -17,19 +17,8 @@ namespace TacticalBoard
 			return (System.DateTime.UtcNow.Ticks/System.TimeSpan.TicksPerMillisecond);
 		}
 
-		public void AddPlayer(uint playerId, Hazel.Connection conn)
-		{
-			NetServerPlayer player = new NetServerPlayer(playerId, conn);
-			this.AddPlayer(player);
-		}
-
 		public void AddPlayer(NetServerPlayer p)
 		{
-			if (this.Players.Contains(p))
-			{
-				return;
-			}
-
 			PlayerTeam team = (this.Players.Count == 0) ? PlayerTeam.TeamA : PlayerTeam.TeamB;
 
 			Debug.Log("Player " + p.Id + " has joined game " + this.Id + " as " + team.ToString() + " Entities=" + p.Entities.Length);
@@ -38,9 +27,10 @@ namespace TacticalBoard
 			PlayerJoin msg = new PlayerJoin(p.Id, team, p.Entities);
 			this.SendToPlayers(msg, Hazel.SendOption.Reliable);
 
-			this.Players.Add(p);
+			this.AddPlayer(p, team);
+
 			p.AssignToGame(this.Id, team, this);
-			this.EntityCounts[p.Id] = 0;
+
 			for (int i=0; i<p.Entities.Length; i++)
 			{
 				EntityParams ep = Data.GetEntityData(p.Entities[i]);

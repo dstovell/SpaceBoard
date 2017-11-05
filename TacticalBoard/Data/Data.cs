@@ -26,16 +26,18 @@ namespace TacticalBoard
 	{
 		public class EntityPlacement
 		{
-			public EntityPlacement(uint id, int x, int y)
+			public EntityPlacement(uint id, int x, int y, PlayerTeam team)
 			{
 				this.Id = id;
 				this.X = x;
 				this.Y = y;
+				this.Team = team;
 			}
 
 			public uint Id;
 			public int X;
 			public int Y;
+			public PlayerTeam Team;
 		}
 
 		public int SizeX = 4;
@@ -51,9 +53,9 @@ namespace TacticalBoard
 			this.StaticPlacements = new  List<EntityPlacement>();
 		}
 
-		public void AddPlacement(uint id, int x, int y)
+		public void AddPlacement(uint id, int x, int y, PlayerTeam team)
 		{
-			this.StaticPlacements.Add( new EntityPlacement(id, x, y) );
+			this.StaticPlacements.Add( new EntityPlacement(id, x, y, team) );
 		}
 	}
 

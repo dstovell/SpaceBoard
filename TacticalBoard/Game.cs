@@ -37,6 +37,7 @@ namespace TacticalBoard
 
 			this.TurnCount = 0;
 			this.EntityCounts = new Dictionary<uint,uint>();
+			this.EntityCounts[0] = 0;
 
 			this.Players = new List<Player>();
 			this.PlayerMap = new Dictionary<uint,Player>();
@@ -75,9 +76,24 @@ namespace TacticalBoard
 			LevelParams lp = Data.GetLevelData(levelId);
 			if (lp != null)
 			{
-				Debug.Log("LoadLevel " + lp.StringId + " " + levelId);
+				Debug.Log("LoadLevel " + lp.StringId + " " + levelId  + " Placements=" + lp.StaticPlacements.Count);
 				this.LevelId = levelId;
 				this.CreateBoard(lp);
+
+				for (int i=0; i<lp.StaticPlacements.Count; i++)
+				{
+					LevelParams.EntityPlacement placement = lp.StaticPlacements[i];
+					EntityParams ep = Data.GetEntityData(placement.Id);
+					if (ep != null)
+					{
+						GridNode node = this.Board.GetNode(placement.X, placement.Y);
+						if (node != null)
+						{
+							Entity e = this.AddEntity(placement.Team, 0, ep);
+							e.ActivateAt(node);
+						}
+					}
+				}
 			}
 		}
 
@@ -96,16 +112,6 @@ namespace TacticalBoard
 		public void CreateBoard(LevelParams lp)
 		{
 			this.Board = new SquareGrid(lp.SizeX, lp.SizeY);
-		}
-
-		public void AddPlayer(Player p)
-		{
-			if (this.Players.Contains(p))
-			{
-				return;
-			}
-
-			this.Players.Add(p);
 		}
 
 		public uint RemainingPlayerSlots()
@@ -233,7 +239,7 @@ namespace TacticalBoard
 			uint newId = this.GenerateEntityId(playerId);
 			Debug.Log("AddEntity id=" + ep.Id + " " + team + " playerId=" + playerId + " instanceId=" + newId);
 
-			Entity e = new Entity(newId, team, playerId, this.Board, ep, br);
+			Entity e = new Entity(newId, team, playerId, this, ep, br);
 			this.Entites.Add(e);
 			this.Entites.Sort(this.EntityComparer);
 			this.EntityMap[newId] = e;
@@ -242,19 +248,23 @@ namespace TacticalBoard
 
 		public Player AddPlayer(uint id, PlayerTeam team)
 		{
-			Player p = null;
-			if (this.PlayerMap.ContainsKey(id))
+			Player p = new Player(id, team);
+			return this.AddPlayer(p, team);
+		}
+
+		protected Player AddPlayer(Player p, PlayerTeam team)
+		{
+			if (this.PlayerMap.ContainsKey(p.Id))
 			{
-				p = this.PlayerMap[id];
+				p = this.PlayerMap[p.Id];
 				p.Team = team;
 				return p;
 			}
 
-			p = new Player(id, team);
 			this.Players.Add(p);
 			this.Players.Sort(this.PlayerComparer);
-			this.PlayerMap[id] = p;
-			this.EntityCounts[id] = 0;
+			this.PlayerMap[p.Id] = p;
+			this.EntityCounts[p.Id] = 0;
 			return p;
 		}
 

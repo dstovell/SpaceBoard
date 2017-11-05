@@ -85,6 +85,7 @@ namespace TacticalBoard
 		public PlayerTeam Team;
 		public EntityParams Initial = null;
 		public EntityParams Current = null;
+		public Game ParentGame = null;
 		public Grid ParentGrid = null;
 		public GridNode Position = null;
 		public bool Activated = false;
@@ -96,11 +97,12 @@ namespace TacticalBoard
 		public Dictionary<uint,EntityAssesment> Hostiles;
 		public Dictionary<uint,EntityAssesment> Neutrals;
 
-		public Entity(uint id, PlayerTeam team, uint playerId, Grid grid, EntityParams ep, Brain br = null)
+		public Entity(uint id, PlayerTeam team, uint playerId, Game game, EntityParams ep, Brain br = null)
 		{
 			this.Id = id;
 			this.PlayerId = playerId;
-			this.ParentGrid = grid;
+			this.ParentGame = game;
+			this.ParentGrid = game.Board;
 			this.Initial = ep;
 			this.CurrentBrain = br;
 
@@ -122,7 +124,7 @@ namespace TacticalBoard
 		{
 			get
 			{
-				return Manager.Instance.TurnCount;
+				return (this.ParentGame != null) ? this.ParentGame.TurnCount : 0;
 			}
 		}
 
