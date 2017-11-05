@@ -184,6 +184,8 @@ namespace TacticalBoard
 
 	public static class Data
 	{
+		public static bool Verbose = false;
+
 		private static MD5 md5Hasher;
 
 		public static uint GetHash(string s) 

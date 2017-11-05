@@ -40,7 +40,6 @@ namespace TacticalBoard
 			hs.entites[0] = hash;
 			hs.entites[1] = hash;
 			hs.entites[2] = hash;
-			Debug.Log("Frigate => " + hash);
 
 			byte [] buffer = NetMessageHub.SerializeData(hs);
 			this.Conn.Connect(buffer); 

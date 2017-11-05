@@ -26,12 +26,17 @@ namespace TacticalBoard
 			return (this.State == ConnectionState.Connected);
 		}
 
+		public bool SetState(ConnectionState s)
+		{
+			this.State = s;
+			return true;
+		}
+
 		public Player(uint id, PlayerTeam team, ConnectionState state = ConnectionState.None)
 		{
 			this.Id = id;
 			this.Team = team;
 			this.State = state;
-			Debug.Log("Create Player " + id + " team=" + team);
 		}
 
 		public uint Id;

@@ -6,7 +6,7 @@ namespace TacticalBoard
 {
 	public class NetServerPlayer : Player
 	{
-		private NetServerGame Game;
+		public NetServerGame Game;
 		private NetServer Server;
 
 		private Hazel.Connection Conn;
@@ -36,14 +36,6 @@ namespace TacticalBoard
 		{
 			this.Conn.DataReceived -= this.OnData;
 			this.Conn.Disconnected -= this.OnDisconnect;
-		}
-
-		public void AssignToGame(uint gameId, PlayerTeam team, NetServerGame game)
-		{
-			this.GameId = gameId;
-			this.Game = game;
-			this.Team = team;
-			this.State = ConnectionState.Connected;
 		}
 
 		public void Send(byte [] data, Hazel.SendOption sendOption = Hazel.SendOption.Reliable)

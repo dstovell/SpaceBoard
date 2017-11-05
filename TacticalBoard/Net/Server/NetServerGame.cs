@@ -29,16 +29,8 @@ namespace TacticalBoard
 
 			this.AddPlayer(p, team);
 
-			p.AssignToGame(this.Id, team, this);
-
-			for (int i=0; i<p.Entities.Length; i++)
-			{
-				EntityParams ep = Data.GetEntityData(p.Entities[i]);
-				if (ep != null)
-				{
-					this.AddEntity(p.Team, p.Id, ep, new CloseAndAttackBrain());
-				}
-			}
+			p.Game = this;
+			p.SetState(NetServerPlayer.ConnectionState.Connected);
 
 			GameJoined gj = new GameJoined(this.Id, p.Id, p.Entities, this.LevelId, team, this.GetTime());
 

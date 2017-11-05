@@ -3,42 +3,45 @@ using System.Collections.Generic;
 
 namespace TacticalBoard
 {
-	public class CloseAndAttackBrain : Brain
+	namespace BrainTypes
 	{
-		public override bool OnThinkMove(Entity e, Dictionary<uint,EntityAssesment> friendlies, Dictionary<uint,EntityAssesment> hostiles, Dictionary<uint,EntityAssesment> neutrals)
+		public class CloseAndAttackBrain : Brain
 		{
-			if (!e.CanMove())
+			public override bool OnThinkMove(Entity e, Dictionary<uint,EntityAssesment> friendlies, Dictionary<uint,EntityAssesment> hostiles, Dictionary<uint,EntityAssesment> neutrals)
 			{
+				if (!e.CanMove())
+				{
+					return false;
+				}
+
+				foreach (KeyValuePair<uint,EntityAssesment> pair in hostiles)
+				{
+					EntityAssesment hostile = pair.Value;
+					if (!hostile.inRange && (hostile.stepTowards != null))
+					{
+						e.MoveTo(hostile.stepTowards);
+						break;
+					}
+				}
+
 				return false;
 			}
 
-			foreach (KeyValuePair<uint,EntityAssesment> pair in hostiles)
+			public override bool OnThinkAttack(Entity e, Dictionary<uint,EntityAssesment> friendlies, Dictionary<uint,EntityAssesment> hostiles, Dictionary<uint,EntityAssesment> neutrals)
 			{
-				EntityAssesment hostile = pair.Value;
-				if (!hostile.inRange && (hostile.stepTowards != null))
+				foreach (KeyValuePair<uint,EntityAssesment> pair in hostiles)
 				{
-					e.MoveTo(hostile.stepTowards);
-					break;
+					EntityAssesment hostile = pair.Value;
+					if (hostile.inRange)
+					{
+						Debug.Log(pair.Key + " range=" + hostile.rangeTo + " pathDistance=" + hostile.pathDistance);
+						Debug.Log("Pew!");
+						break;
+					}
 				}
+
+				return false;
 			}
-
-			return false;
-		}
-
-		public override bool OnThinkAttack(Entity e, Dictionary<uint,EntityAssesment> friendlies, Dictionary<uint,EntityAssesment> hostiles, Dictionary<uint,EntityAssesment> neutrals)
-		{
-			foreach (KeyValuePair<uint,EntityAssesment> pair in hostiles)
-			{
-				EntityAssesment hostile = pair.Value;
-				if (hostile.inRange)
-				{
-					Debug.Log(pair.Key + " range=" + hostile.rangeTo + " pathDistance=" + hostile.pathDistance);
-					Debug.Log("Pew!");
-					break;
-				}
-			}
-
-			return false;
 		}
 	}
 }

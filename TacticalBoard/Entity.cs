@@ -447,6 +447,17 @@ namespace TacticalBoard
 			return turns;
 		}
 
+		public bool LoadBrainByType<BrainType>() where BrainType : Brain, new()
+		{
+			Brain b = new BrainType() as Brain;
+			if (b != null)
+			{
+				this.CurrentBrain = b;
+				return true;
+			}
+			return false;
+		}
+
 		public bool IsTeamHostile(PlayerTeam t) 	{ return ((t != PlayerTeam.Neutral) && (t != this.Team)); }
 		public bool IsTeamFriendly(PlayerTeam t) 	{ return ((t != PlayerTeam.Neutral) && (t == this.Team)); }
 		public bool IsTeamNeutral(PlayerTeam t) 	{ return (t == PlayerTeam.Neutral); }

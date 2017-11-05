@@ -90,6 +90,7 @@ namespace TacticalBoard
 						if (node != null)
 						{
 							Entity e = this.AddEntity(placement.Team, 0, ep);
+							e.LoadBrainByType<BrainTypes.CloseAndAttackBrain>();
 							e.ActivateAt(node);
 						}
 					}
@@ -138,6 +139,7 @@ namespace TacticalBoard
 
 		public List<Player> Players;
 		public Dictionary<uint, Player> PlayerMap;
+		public Player LocalPlayer { get; protected set; }
 
 		protected Dictionary<uint, uint> EntityCounts;
 
@@ -246,13 +248,30 @@ namespace TacticalBoard
 			return e;
 		}
 
-		public Player AddPlayer(uint id, PlayerTeam team)
+		public uint AddPlayerEntities(Player p)
+		{
+			uint numEtities = 0;
+			for (int i=0; i<p.Entities.Length; i++)
+			{
+				EntityParams ep = Data.GetEntityData(p.Entities[i]);
+				if (ep != null)
+				{
+					Entity e = this.AddEntity(p.Team, p.Id, ep);
+					e.LoadBrainByType<BrainTypes.CloseAndAttackBrain>();
+					numEtities++;
+				}
+			}
+			return numEtities;
+		}
+
+		public Player AddPlayer(uint id, PlayerTeam team, uint [] entites)
 		{
 			Player p = new Player(id, team);
+			p.Entities = entites;
 			return this.AddPlayer(p, team);
 		}
 
-		protected Player AddPlayer(Player p, PlayerTeam team)
+		protected Player AddPlayer(Player p, PlayerTeam team, bool loadEntites = true)
 		{
 			if (this.PlayerMap.ContainsKey(p.Id))
 			{
@@ -261,10 +280,18 @@ namespace TacticalBoard
 				return p;
 			}
 
+			p.Team = team;
+			p.GameId = this.Id;
 			this.Players.Add(p);
 			this.Players.Sort(this.PlayerComparer);
 			this.PlayerMap[p.Id] = p;
 			this.EntityCounts[p.Id] = 0;
+
+			if (loadEntites)
+			{
+				this.AddPlayerEntities(p);
+			}
+
 			return p;
 		}
 
@@ -279,21 +306,10 @@ namespace TacticalBoard
 			this.Id = msg.GameId;
 			this.State = GameState.WaitingForPlayers;
 
-			Player p = this.AddPlayer(msg.PlayerId, msg.Team);
-			p.Entities = msg.Entities;
-
 			this.SetDeltaTime(msg.ServerTime);
 			this.LoadLevel(msg.LevelId);
 
-			int len = msg.Entities.Length;
-			for (int i=0; i<len; i++)
-			{
-				EntityParams ep = Data.GetEntityData(msg.Entities[i]);
-				if (ep != null)
-				{
-					this.AddEntity(p.Team, p.Id, ep, new CloseAndAttackBrain());
-				}
-			}
+			this.LocalPlayer = this.AddPlayer(msg.PlayerId, msg.Team, msg.Entities);
 		}
 
 		public void HandleGameStart(GameStart msg)
@@ -313,7 +329,7 @@ namespace TacticalBoard
 
 		public void HandlePlayerJoin(PlayerJoin msg)
 		{
-			this.AddPlayer(msg.PlayerId, PlayerTeam.Neutral);
+			this.AddPlayer(msg.PlayerId, msg.Team, msg.Entities);
 		}
 
 		public void HandlePlayerLeave(PlayerLeave msg)

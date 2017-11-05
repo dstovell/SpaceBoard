@@ -10,7 +10,10 @@ namespace TacticalBoard
 		public static void AddLevelData(Dictionary<uint,LevelParams> map, string name, AddLevelDataDelegate cb)
 		{
 			LevelParams lp = new LevelParams(name, Data.DefaultSizeX, Data.DefaultSizeY);
-			Debug.Log("AddLevelData " + name + " id=" + lp.Id);
+			if (Data.Verbose)
+			{
+				Debug.Log("AddLevelData " + name + " id=" + lp.Id);
+			}
 			if (cb != null)
 			{
 				cb(lp);

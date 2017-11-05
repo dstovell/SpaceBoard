@@ -3,27 +3,30 @@ using System.Collections.Generic;
 
 namespace TacticalBoard
 {
-	public class ChargeForwardBrain : Brain
+	namespace BrainTypes
 	{
-		public override bool OnThinkMove(Entity e, Dictionary<uint,EntityAssesment> friendlies, Dictionary<uint,EntityAssesment> hostiles, Dictionary<uint,EntityAssesment> neutrals)
+		public class ChargeForwardBrain : Brain
 		{
-			if (e.GetMove() > 0)
+			public override bool OnThinkMove(Entity e, Dictionary<uint,EntityAssesment> friendlies, Dictionary<uint,EntityAssesment> hostiles, Dictionary<uint,EntityAssesment> neutrals)
 			{
-				int newY = e.Y + e.GetMove();
-				GridNode n = e.ParentGrid.GetNode(e.X, newY);
-				if (n != null)
+				if (e.GetMove() > 0)
 				{
-					e.MoveTo(n);
-					return true;
+					int newY = e.Y + e.GetMove();
+					GridNode n = e.ParentGrid.GetNode(e.X, newY);
+					if (n != null)
+					{
+						e.MoveTo(n);
+						return true;
+					}
 				}
+
+				return false;
 			}
 
-			return false;
-		}
-
-		public override bool OnThinkAttack(Entity e, Dictionary<uint,EntityAssesment> friendlies, Dictionary<uint,EntityAssesment> hostiles, Dictionary<uint,EntityAssesment> neutrals)
-		{
-			return false;
+			public override bool OnThinkAttack(Entity e, Dictionary<uint,EntityAssesment> friendlies, Dictionary<uint,EntityAssesment> hostiles, Dictionary<uint,EntityAssesment> neutrals)
+			{
+				return false;
+			}
 		}
 	}
 }
