@@ -5,6 +5,7 @@ namespace TacticalBoard
 {
 	public class EntityAssesment
 	{
+		public Entity entity;
 		public int pathDistance;
 		public List<GridNode> pathTo;
 		public GridNode stepTowards;
@@ -34,6 +35,7 @@ namespace TacticalBoard
 
 		public void Assess(Entity us, Entity them)
 		{
+			this.entity = them;
 			this.pathTo = us.GetPath(them.Position);
 			this.pathDistance = (this.pathTo != null) ? (this.pathTo.Count - 1) : -1;
 			this.stepTowards = (this.pathDistance > 0) ? this.pathTo[0] : null;
@@ -277,6 +279,11 @@ namespace TacticalBoard
 			EntityParams p = attacker.Current;
 			bool didDamage = this.Damage(p.attack, p.attackType, p.attackLightType);
 
+			if (didDamage && this.IsDead())
+			{
+				this.ParentGame.LogDestroyed(this, attacker);
+			}
+
 			return didDamage;
 		}
 
@@ -288,6 +295,8 @@ namespace TacticalBoard
 			}
 
 			bool didDamage = target.OnAttack(this);
+
+			this.ParentGame.LogAttackedEntity(this, target);
 
 			return didDamage;
 		}
@@ -331,6 +340,11 @@ namespace TacticalBoard
 		public void OnDeploymentRequestComplete(Request r)
 		{
 			this.Deployment = (r.Result == ResultType.Success) ? DeploymentState.Deploying : DeploymentState.None;
+			if (r.Result == ResultType.Success)
+			{
+				GridNode node = this.ParentGame.Board.GetNode(r.GridNodeId);
+				this.ParentGame.LogEntityDeploying(this, node);
+			}
 		}
 
 		public void OnDeployment(Request r)
@@ -370,7 +384,27 @@ namespace TacticalBoard
 			this.MoveTo(n);
 			this.Activated = true;
 			this.TurnActivated = this.TurnCount;
+
+			this.ParentGame.LogEntityDeployed(this);
+
 			return true;
+		}
+
+		public bool SetCourseTo(List<GridNode> course)
+		{
+			if ((course == null) || (course.Count == 0))
+			{
+				return false;
+			}
+
+			bool moved = this.MoveTo(course[0]);
+
+			if (moved)
+			{
+				this.ParentGame.LogSetCourse(this, course);
+			}
+
+			return moved;
 		}
 
 		public bool MoveTo(GridNode n)
@@ -392,7 +426,7 @@ namespace TacticalBoard
 
 			this.Position = n;
 			this.Position.OnEnter(this);
-			TacticalBoard.Debug.Log("Entity.MoveTo " + this.Position.x + "," + this.Position.y);
+			//TacticalBoard.Debug.Log("Entity.MoveTo " + this.Position.x + "," + this.Position.y);
 			if (this.Current != null)
 			{
 				this.X = this.Position.x;

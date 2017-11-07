@@ -3,6 +3,49 @@ using System.Collections.Generic;
 
 namespace TacticalBoard
 {
+	public class EntityActivity
+	{
+		public enum ActivityType
+		{
+			Created,
+			Deploying,
+			Deployed,
+			RotatedTo,
+			SetCourse,
+			AttackedEntity,
+			Disabled,
+			Destroyed
+		}
+
+		//Defined for all types
+		public ActivityType Type;
+		public Entity EntitySource;
+		public GridNode	Location;
+		public long Turn;
+		public long Time;
+
+		//Defined for RotatedTo
+		public GridNode	LookAt;
+
+		//Defined for SetCourse
+		public List<GridNode> Course;
+
+		//Defined for AttackedEntity
+		public Entity Target;
+
+		//Defined for Disabled, Destroyed
+		public Entity Damager;
+
+		public EntityActivity(long turn, ActivityType type, Entity entity, GridNode location = null)
+		{
+			this.Turn = turn;
+			this.Type = type;
+			this.EntitySource = entity;
+			this.Location = (location != null) ? location : entity.Position;
+			Debug.Log("[EntityActivity] " + type + " entity=" + entity.Id);
+		}
+	}
+
 	public class Game
 	{
 		public static uint MaxPlayers = 1;
@@ -44,6 +87,8 @@ namespace TacticalBoard
 
 			this.Entites = new List<Entity>();
 			this.EntityMap = new Dictionary<uint,Entity>();
+
+			this.CurrentActivity = new List<EntityActivity>();
 		}
 
 		protected long deltaTime = 0;
@@ -125,12 +170,70 @@ namespace TacticalBoard
 			return (this.RemainingPlayerSlots() == 0);
 		}
 
+		public void LogEntityCreate(Entity e)
+		{
+			this.LogEntityBasicActivity(e, EntityActivity.ActivityType.Created);
+		}
+
+		public void LogEntityDeploying(Entity e, GridNode deployingAt)
+		{
+			this.LogEntityBasicActivity(e, EntityActivity.ActivityType.Deploying, deployingAt);
+		}
+
+		public void LogEntityDeployed(Entity e)
+		{
+			this.LogEntityBasicActivity(e, EntityActivity.ActivityType.Deployed);
+		}
+
+		public void LogRotateTo(Entity e, GridNode lookAt)
+		{
+			EntityActivity ea = new EntityActivity(this.TurnCount, EntityActivity.ActivityType.RotatedTo, e);
+			ea.LookAt = lookAt;
+			this.CurrentActivity.Add(ea);
+		}
+
+		public void LogSetCourse(Entity e, List<GridNode> course)
+		{
+			EntityActivity ea = new EntityActivity(this.TurnCount, EntityActivity.ActivityType.SetCourse, e);
+			ea.Course = course;
+			this.CurrentActivity.Add(ea);
+		}
+
+		public void LogAttackedEntity(Entity e, Entity target)
+		{
+			EntityActivity ea = new EntityActivity(this.TurnCount, EntityActivity.ActivityType.AttackedEntity, e);
+			ea.Target = target;
+			this.CurrentActivity.Add(ea);
+		}
+
+		public void LogDisabled(Entity e, Entity damager)
+		{
+			EntityActivity ea = new EntityActivity(this.TurnCount, EntityActivity.ActivityType.Disabled, e);
+			ea.Damager = damager;
+			this.CurrentActivity.Add(ea);
+		}
+
+		public void LogDestroyed(Entity e, Entity damager)
+		{
+			EntityActivity ea = new EntityActivity(this.TurnCount, EntityActivity.ActivityType.Destroyed, e);
+			ea.Damager = damager;
+			this.CurrentActivity.Add(ea);
+		}
+
+		protected void LogEntityBasicActivity(Entity e, EntityActivity.ActivityType type, GridNode location = null)
+		{
+			EntityActivity ea = new EntityActivity(this.TurnCount, type, e, location);
+			this.CurrentActivity.Add(ea);
+		}
+
+	
 		public uint Id;
 		public long StartTime { get; protected set; }
 		public long EndTime { get; protected set; }
 		public long TurnCount { get; protected set; }
 		public uint LevelId	{ get; protected set; }
 		public Grid Board;
+		public List<EntityActivity> CurrentActivity;
 
 		protected long LastTurnUpdate = 0;
 
@@ -187,6 +290,8 @@ namespace TacticalBoard
 
 		private void UpdateTurn()
 		{
+			this.CurrentActivity.Clear();
+
 			this.TurnCount++;
 
 			if (this.Interventions != null)
@@ -245,6 +350,7 @@ namespace TacticalBoard
 			this.Entites.Add(e);
 			this.Entites.Sort(this.EntityComparer);
 			this.EntityMap[newId] = e;
+			this.LogEntityCreate(e);
 			return e;
 		}
 

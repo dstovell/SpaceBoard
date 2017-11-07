@@ -36,6 +36,7 @@ namespace TacticalBoard
 					{
 						Debug.Log(pair.Key + " range=" + hostile.rangeTo + " pathDistance=" + hostile.pathDistance);
 						Debug.Log("Pew!");
+						e.Attack(hostile.entity);
 						break;
 					}
 				}
