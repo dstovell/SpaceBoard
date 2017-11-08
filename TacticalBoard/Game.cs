@@ -235,6 +235,9 @@ namespace TacticalBoard
 		public Grid Board;
 		public List<EntityActivity> CurrentActivity;
 
+		public delegate void EntityActivityDel(List<EntityActivity> activity);		
+		public EntityActivityDel OnEntityActivity;
+
 		protected long LastTurnUpdate = 0;
 
 		public List<Entity> Entites;
@@ -290,8 +293,8 @@ namespace TacticalBoard
 
 		private void UpdateTurn()
 		{
+			//First clear state from previous turn
 			this.CurrentActivity.Clear();
-
 			this.TurnCount++;
 
 			if (this.Interventions != null)
@@ -329,6 +332,12 @@ namespace TacticalBoard
 				{
 					e.UpdateAttack();
 				}
+			}
+
+
+			if (this.OnEntityActivity != null)
+			{
+				this.OnEntityActivity(this.CurrentActivity);
 			}
 		}
 

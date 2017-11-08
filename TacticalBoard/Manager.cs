@@ -7,6 +7,8 @@ namespace TacticalBoard
 	{
 		public static TacticalBoard.Manager Instance = null;
 
+		public Game.EntityActivityDel OnEntityActivity;
+
 		public long TurnCount
 		{
 			get
@@ -42,6 +44,7 @@ namespace TacticalBoard
 			}
 
 			this.CurrentGame = new Game(gameId);
+			this.CurrentGame.OnEntityActivity += this._OnEntityActivity;
 			this.CurrentGame.Connect(ip, port);
 			return true;
 		}
@@ -54,12 +57,21 @@ namespace TacticalBoard
 			}
 
 			this.CurrentGame = new Game();
+			this.CurrentGame.OnEntityActivity += this._OnEntityActivity;
 			this.CurrentGame.Connect(ip, port);
 			return true;
 		}
 
 		public Manager()
 		{
+		}
+
+		private void _OnEntityActivity(List<EntityActivity> activity)
+		{
+			if (this.OnEntityActivity != null)
+			{
+				this.OnEntityActivity(activity);
+			}
 		}
 	}
 }

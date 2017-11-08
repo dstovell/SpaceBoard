@@ -22,6 +22,7 @@ public class SpaceBoardComponent : MonoBehaviour
 		Instance = this;
 		this.NodeMap = new Dictionary<ushort,SpaceBoardNodeComponent>();
 		TacticalBoard.Manager.Init();
+		TacticalBoard.Manager.Instance.OnEntityActivity += this.OnEntityActivity;
 		CreateBoard();
 	}
 
@@ -110,6 +111,16 @@ public class SpaceBoardComponent : MonoBehaviour
 //					this.NodeMap.Add(node.Id, nodeComp);
 //				}
 			}
+		}
+	}
+
+	private void OnEntityActivity(List<TacticalBoard.EntityActivity> activity)
+	{
+		Debug.LogError("OnEntityActivity count: " + activity.Count);
+		for (int i=0; i<activity.Count; i++)
+		{
+			TacticalBoard.EntityActivity ea = activity[i];
+			Debug.Log("    " + ea.EntitySource.Id + " " + ea.Type.ToString() + " ");
 		}
 	}
 	
