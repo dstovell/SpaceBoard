@@ -32,15 +32,15 @@ public class SpaceBoardComponent : MonoBehaviour
 		//return TacticalBoard.Manager.Instance.AddPlayer(playerId, team);
 	}
 
-	public void CreateEntity(TacticalBoard.PlayerTeam team, uint playerId, string id, int warpToX, int warpToY)
+	public void CreateEntity(TacticalBoard.Entity entity)
 	{
-//		return;
-//		SpaceBoardEntityData data = SpaceBoardEntityManager.Instance.GetEntityData(id);
-//		//Debug.LogError("CreateEntity team=" + team.ToString() + " playerId=" + playerId + " id=" + id + " warpTo=" + warpToX + "," + warpToY + " data=" + data);
-//		if (data == null)
-//		{
-//			return;
-//		}
+
+		SpaceBoardEntityData data = SpaceBoardEntityManager.Instance.GetEntityData(entity.DataId);
+		Debug.LogError("CreateEntity team=" + entity.Team.ToString() + " playerId=" + entity.PlayerId + " id=" + entity.Id + " data=" + data);
+		if (data == null)
+		{
+			return;
+		}
 //
 //		TacticalBoard.CloseAndAttackBrain br = new TacticalBoard.CloseAndAttackBrain();
 //
@@ -116,11 +116,55 @@ public class SpaceBoardComponent : MonoBehaviour
 
 	private void OnEntityActivity(List<TacticalBoard.EntityActivity> activity)
 	{
-		Debug.LogError("OnEntityActivity count: " + activity.Count);
 		for (int i=0; i<activity.Count; i++)
 		{
 			TacticalBoard.EntityActivity ea = activity[i];
-			Debug.Log("    " + ea.EntitySource.Id + " " + ea.Type.ToString() + " ");
+
+			switch (ea.Type)
+			{
+				case TacticalBoard.EntityActivity.ActivityType.Created:
+				{
+					Debug.Log("ActivityType.Created " + ea.EntitySource.Id + " " + ea.EntitySource.Current.Id + " ");
+					this.CreateEntity(ea.EntitySource);
+					break;
+				}
+
+				case TacticalBoard.EntityActivity.ActivityType.Deploying:
+				{
+					break;
+				}
+
+				case TacticalBoard.EntityActivity.ActivityType.Deployed:
+				{
+					Debug.Log("ActivityType.Deployed " + ea.EntitySource.Id + " to " + ea.Location.x + "," + ea.Location.y);
+					break;
+				}
+
+				case TacticalBoard.EntityActivity.ActivityType.SetCourse:
+				{
+					break;
+				}
+
+				case TacticalBoard.EntityActivity.ActivityType.RotatedTo:
+				{
+					break;
+				}
+
+				case TacticalBoard.EntityActivity.ActivityType.AttackedEntity:
+				{
+					break;
+				}
+
+				case TacticalBoard.EntityActivity.ActivityType.Disabled:
+				{
+					break;
+				}
+
+				case TacticalBoard.EntityActivity.ActivityType.Destroyed:
+				{
+					break;
+				}
+			}
 		}
 	}
 	

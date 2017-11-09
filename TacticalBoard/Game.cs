@@ -253,6 +253,8 @@ namespace TacticalBoard
 
 		private NetClient Client;
 
+		private int initialActivityReportedCount = 0;
+
 		public virtual void Update()
 		{
 			long now = this.GetTime();
@@ -267,8 +269,19 @@ namespace TacticalBoard
 
 			if (!this.IsRunning())
 			{
+				if ((this.CurrentActivity.Count > this.initialActivityReportedCount) && (this.OnEntityActivity != null))
+				{
+					this.OnEntityActivity(this.CurrentActivity);
+					this.initialActivityReportedCount = this.CurrentActivity.Count;
+				}
+
 				if (inTimeFrame)
 				{
+					if (this.initialActivityReportedCount < this.CurrentActivity.Count)
+					{
+						Debug.LogError("Game reported only " + this.initialActivityReportedCount + " of " + this.CurrentActivity.Count + " events");
+					}
+
 					Debug.Log("Running " + this.GetTime());
 					this.State  = GameState.Running;
 				}

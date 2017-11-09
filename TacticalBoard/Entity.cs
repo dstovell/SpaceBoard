@@ -122,6 +122,14 @@ namespace TacticalBoard
 
 		public int Y;
 
+		public uint DataId
+		{
+			get
+			{
+				return (this.Current != null) ? this.Current.Id : 0;
+			}
+		}
+
 		public long TurnCount
 		{
 			get
