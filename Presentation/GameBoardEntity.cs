@@ -3,8 +3,6 @@ using System.Collections;
 
 public class GameBoardEntity : MonoBehaviour
 {
-	public uint EntityId;
-	public uint PlayerId;
 	public TacticalBoard.EntityParams Params;
 	public Sprite CardImage;
 	public ShipMover Mover;
@@ -18,6 +16,22 @@ public class GameBoardEntity : MonoBehaviour
 	public int shield = 1;
 
 	private bool deployed = false;
+
+	public uint EntityId
+	{
+		get
+		{
+			return (this.Entity != null) ? this.Entity.Id : 0;
+		}
+	}
+
+	public uint PlayerId
+	{
+		get
+		{
+			return (this.Entity != null) ? this.Entity.PlayerId : 0;
+		}
+	}
 
 	public int X
 	{
@@ -55,6 +69,37 @@ public class GameBoardEntity : MonoBehaviour
 		return false;
 	}
 
+	public bool BeginDeployTo(TacticalBoard.GridNode node)
+	{
+		SpaceBoardNodeComponent comp = (node != null) ? SpaceBoardComponent.Instance.GetNode(node.Id) : null;
+		if (comp != null)
+		{
+			this.ShowDeployMarker(comp);
+			return true;
+		}
+		return false;
+	}
+
+	public bool DeployTo(TacticalBoard.GridNode node)
+	{
+		if (!this.deployed && this.Entity.IsDeployed())
+		{
+			SpaceBoardNodeComponent comp = (node != null) ? SpaceBoardComponent.Instance.GetNode(node.Id) : null;
+			if (comp != null)
+			{
+				Quaternion rot = (this.Entity.Team == TacticalBoard.PlayerTeam.TeamA) ? Quaternion.identity : Quaternion.LookRotation(new Vector3(0, 0, -1));
+
+				this.Mover.Warp(comp.transform.position, rot);
+
+				this.deployed = true;
+				this.HideDeployMarker();
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public void Activate(Vector3 p)
 	{
 		if (this.Entity != null)
@@ -83,24 +128,19 @@ public class GameBoardEntity : MonoBehaviour
 		this.shield = this.Params.shield;
 	}
 
+	private void ShowDeployMarker(SpaceBoardNodeComponent comp)
+	{
+	}
+
+	private void HideDeployMarker()
+	{
+	}
+
 	void Update ()
 	{
 		if (this.Entity != null)
 		{
-			this.EntityId = this.Entity.Id;
 			this.SetParams(this.Entity.Current);
-
-			if (!this.deployed && this.Entity.IsDeployed())
-			{
-				SpaceBoardNodeComponent comp = (this.Entity.Position != null) ? SpaceBoardComponent.Instance.GetNode(this.Entity.Position.Id) : null;
-				if (comp != null)
-				{
-					Quaternion rot = (this.Entity.Team == TacticalBoard.PlayerTeam.TeamA) ? Quaternion.identity : Quaternion.LookRotation(new Vector3(0, 0, -1));
-
-					this.Mover.Warp(comp.transform.position, rot);
-				}
-				this.deployed = true;
-			}
 		}
 	}
 }

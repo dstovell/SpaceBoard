@@ -16,11 +16,13 @@ public class SpaceBoardComponent : MonoBehaviour
 	public static SpaceBoardComponent Instance;
 
 	public Dictionary<ushort,SpaceBoardNodeComponent> NodeMap;
+	public Dictionary<uint,GameBoardEntity> EntityMap;
 
 	void Awake() 
 	{
 		Instance = this;
 		this.NodeMap = new Dictionary<ushort,SpaceBoardNodeComponent>();
+		this.EntityMap = new Dictionary<uint,GameBoardEntity>();
 		TacticalBoard.Manager.Init();
 		TacticalBoard.Manager.Instance.OnEntityActivity += this.OnEntityActivity;
 		CreateBoard();
@@ -41,22 +43,37 @@ public class SpaceBoardComponent : MonoBehaviour
 		{
 			return;
 		}
-//
-//		TacticalBoard.CloseAndAttackBrain br = new TacticalBoard.CloseAndAttackBrain();
-//
-//		TacticalBoard.GridNode nodeToWarpTo = TacticalBoard.Manager.Instance.CurrentGame.Board.GetNode(warpToX, warpToY);
-//
-//		TacticalBoard.Entity e = null;//TacticalBoard.Manager.Instance.AddEntity(team, playerId, data.Params, br);
-//
-//		Vector3 pos = new Vector3(this.GetX(warpToX), 0, this.GetY(warpToY) - 200);
-//		GameObject obj = SpaceBoardEntityManager.Instance.CreateGameBoardEntity(id, pos, Quaternion.identity);
-//		obj.transform.localScale = new Vector3(data.PrefabScale, data.PrefabScale, data.PrefabScale);
-//
-//		GameBoardEntity comp = obj.GetComponent<GameBoardEntity>();
-//		comp.PlayerId = playerId;
-//		comp.Entity = e;
-//
-//		e.RequestDeployment(nodeToWarpTo);
+
+		Vector3 pos = new Vector3(-1000, 0, -1000);
+		GameObject obj = SpaceBoardEntityManager.Instance.CreateGameBoardEntity(data.Id, pos, Quaternion.identity);
+		obj.transform.localScale = new Vector3(data.PrefabScale, data.PrefabScale, data.PrefabScale);
+
+		GameBoardEntity gbe = obj.GetComponent<GameBoardEntity>();
+		gbe.Entity = entity;
+
+		this.EntityMap[entity.Id] = gbe; 
+	}
+
+	public void BeginDeployEntity(TacticalBoard.Entity entity, TacticalBoard.GridNode node)
+	{
+		if (!this.EntityMap.ContainsKey(entity.Id))
+		{
+			return;
+		}
+
+		GameBoardEntity gbe = this.EntityMap[entity.Id];
+		gbe.BeginDeployTo(node);
+	}
+
+	public void CompleteDeployEntity(TacticalBoard.Entity entity, TacticalBoard.GridNode node)
+	{
+		if (!this.EntityMap.ContainsKey(entity.Id))
+		{
+			return;
+		}
+
+		GameBoardEntity gbe = this.EntityMap[entity.Id];
+		gbe.DeployTo(node);
 	}
 
 	public float GetX(int x)
@@ -90,6 +107,7 @@ public class SpaceBoardComponent : MonoBehaviour
 		return this.NodeMap.ContainsKey(id) ? this.NodeMap[id] : null;
 	}
 
+	//This needs to happen AFTER we join a game
 	void CreateBoard()
 	{
 		if (this.BoardNodePrefab == null)
@@ -104,12 +122,13 @@ public class SpaceBoardComponent : MonoBehaviour
 				GameObject obj = GameObject.Instantiate(this.BoardNodePrefab, this.transform);
 				obj.transform.SetPositionAndRotation(this.GetPos(x, y), Quaternion.identity);
 
-//				TacticalBoard.GridNode node = TacticalBoard.Manager.Instance.Board.GetNode(x, y);
-//				SpaceBoardNodeComponent nodeComp = obj.GetComponent<SpaceBoardNodeComponent>();
-//				if ((node != null) && (nodeComp != null))
-//				{
-//					this.NodeMap.Add(node.Id, nodeComp);
-//				}
+				TacticalBoard.GridNode node = TacticalBoard.Manager.Instance.CurrentGame.Board.GetNode(x, y);
+				SpaceBoardNodeComponent nodeComp = obj.GetComponent<SpaceBoardNodeComponent>();
+				if ((node != null) && (nodeComp != null))
+				{
+					nodeComp.Node = node;
+					this.NodeMap.Add(node.Id, nodeComp);
+				}
 			}
 		}
 	}
@@ -131,12 +150,14 @@ public class SpaceBoardComponent : MonoBehaviour
 
 				case TacticalBoard.EntityActivity.ActivityType.Deploying:
 				{
+					this.BeginDeployEntity(ea.EntitySource, ea.Location);
 					break;
 				}
 
 				case TacticalBoard.EntityActivity.ActivityType.Deployed:
 				{
 					Debug.Log("ActivityType.Deployed " + ea.EntitySource.Id + " to " + ea.Location.x + "," + ea.Location.y);
+					this.CompleteDeployEntity(ea.EntitySource, ea.Location);
 					break;
 				}
 
