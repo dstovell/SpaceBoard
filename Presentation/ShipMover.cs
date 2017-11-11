@@ -8,7 +8,8 @@ public class ShipMover : MonoBehaviour
 	{
 		Idle,
 		Warping,
-		Moving
+		Moving,
+		SplineMoving
 	}
 	public MoveMode moveMode = MoveMode.Idle;
 
@@ -26,6 +27,8 @@ public class ShipMover : MonoBehaviour
 	private Vector3 WarpFrom;
 	private Vector3 WarpTo;
 
+	public ShipLeader Leader;
+
 	private int lastX = -1;
 	private int lastY = -1;
 
@@ -34,6 +37,7 @@ public class ShipMover : MonoBehaviour
 	void Awake()
 	{
 		this.Entity = this.gameObject.GetComponent<GameBoardEntity>();
+		this.CreateLeader();
 	}
 
 	void OnDestroy()
@@ -56,10 +60,15 @@ public class ShipMover : MonoBehaviour
 		this.MoveToTarget = to;
 	}
 
+	public void MovePath(List<Vector3> points)
+	{
+	}
+
 	public void Stop()
 	{
 		this.moveMode = MoveMode.Idle;
 		this.MoveToTarget = Vector3.zero;
+		this.Leader.Stop();
 	}
 
 	public void Teleport(Vector3 postion, Quaternion rotation) 
@@ -96,6 +105,56 @@ public class ShipMover : MonoBehaviour
 	{
 		this.Stop();
 		this.warpComplete = true;
+	}
+
+	public bool IsLeaderEjected()
+	{
+		return ((this.Leader != null) && (this.Leader.gameObject.transform.parent == null));
+	}
+
+	public void EjectLeader()
+	{
+		if (!IsLeaderEjected())
+		{
+			this.Leader.gameObject.name = this.gameObject.name + "_Leader";
+			this.Leader.gameObject.transform.SetParent(null);
+		}
+	}
+
+	public void CreateLeader()
+	{
+		if (this.Leader == null)
+		{
+			GameObject obj = new GameObject(this.gameObject.name + "_Leader");
+			obj.transform.position = this.transform.position;
+			obj.transform.rotation = this.transform.rotation;
+			obj.transform.SetParent(this.transform);
+			this.Leader = obj.AddComponent<ShipLeader>();
+		}
+	}
+
+	public SplineGroup GetSplineGroup() 
+	{
+		if (this.Leader != null)
+		{
+			return this.Leader.splineGroup;
+		}
+		return null;
+	}
+
+	public void SetSplineGroup(SplineGroup splineGroup) 
+	{
+		if (this.Leader != null)
+		{
+			this.Leader.SetSplineGroup(splineGroup);
+		}
+	}
+
+	public void SetCourse(List<TacticalBoard.GridNode> nodes)
+	{
+		EjectLeader();
+		SplineGroup splineGroup = SplineGroup.GetNewGroup(this.Leader);
+		this.SetSplineGroup(splineGroup);
 	}
 
 	void Update() 
@@ -163,9 +222,15 @@ public class ShipMover : MonoBehaviour
 			this.transform.position = Vector3.MoveTowards(this.transform.position, this.MoveToTarget, this.MoveSpeed);
 		}
 
+		if (this.moveMode == MoveMode.SplineMoving)
+		{
+			this.transform.position = this.Leader.GetTargetPosition();
+			this.transform.rotation = this.Leader.transform.rotation;
+
+		}
+
 		this.UpdateThrusters();
 		//this.UpdateWeapons();
-		//this.ScanForHostiles();
 	}
 
 	private void UpdateThrusters()
