@@ -10,6 +10,7 @@ namespace TacticalBoard
 			Created,
 			Deploying,
 			Deployed,
+			Teleported,
 			RotatedTo,
 			SetCourse,
 			AttackedEntity,
@@ -147,6 +148,7 @@ namespace TacticalBoard
 							Entity e = this.AddEntity(placement.Team, 0, ep);
 							e.LoadBrainByType<BrainTypes.CloseAndAttackBrain>();
 							e.ActivateAt(node);
+							this.LogEntityTeleported(e);
 						}
 					}
 				}
@@ -194,6 +196,12 @@ namespace TacticalBoard
 		{
 			this.LogEntityBasicActivity(e, EntityActivity.ActivityType.Deployed);
 		}
+
+		public void LogEntityTeleported(Entity e)
+		{
+			this.LogEntityBasicActivity(e, EntityActivity.ActivityType.Teleported);
+		}
+
 
 		public void LogRotateTo(Entity e, GridNode lookAt)
 		{

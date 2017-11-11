@@ -62,6 +62,12 @@ public class ShipMover : MonoBehaviour
 		this.MoveToTarget = Vector3.zero;
 	}
 
+	public void Teleport(Vector3 postion, Quaternion rotation) 
+	{
+		this.transform.position = postion;
+		this.transform.rotation = rotation;
+	}
+
 	public void Warp(Vector3 postion, Quaternion rotation) 
 	{
 		GameObject obj = new GameObject("Warp");

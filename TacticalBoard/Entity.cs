@@ -364,6 +364,7 @@ namespace TacticalBoard
 				if (node != null)
 				{
 					this.ActivateAt(node);
+					this.ParentGame.LogEntityDeployed(this);
 				}
 			}
 		}
@@ -392,8 +393,6 @@ namespace TacticalBoard
 			this.MoveTo(n);
 			this.Activated = true;
 			this.TurnActivated = this.TurnCount;
-
-			this.ParentGame.LogEntityDeployed(this);
 
 			return true;
 		}

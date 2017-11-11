@@ -70,6 +70,17 @@ public class SpaceBoardComponent : MonoBehaviour
 		gbe.DeployTo(node);
 	}
 
+	public void TeleportEntity(TacticalBoard.Entity entity, TacticalBoard.GridNode node)
+	{
+		if (!this.EntityMap.ContainsKey(entity.Id))
+		{
+			return;
+		}
+
+		GameBoardEntity gbe = this.EntityMap[entity.Id];
+		gbe.TeleportTo(node);
+	}
+
 	public float GetX(int x)
 	{
 		return (float)(x - this.SizeX/2) * this.SizeScale;
@@ -169,6 +180,13 @@ public class SpaceBoardComponent : MonoBehaviour
 				{
 					Debug.Log("ActivityType.Deployed " + ea.EntitySource.Id + " to " + ea.Location.x + "," + ea.Location.y);
 					this.CompleteDeployEntity(ea.EntitySource, ea.Location);
+					break;
+				}
+
+				case TacticalBoard.EntityActivity.ActivityType.Teleported:
+				{
+					Debug.Log("ActivityType.Teleported " + ea.EntitySource.Id + " to " + ea.Location.x + "," + ea.Location.y);
+					this.TeleportEntity(ea.EntitySource, ea.Location);
 					break;
 				}
 

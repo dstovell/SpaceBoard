@@ -100,12 +100,20 @@ public class GameBoardEntity : MonoBehaviour
 		return false;
 	}
 
-	public void Activate(Vector3 p)
+	public bool TeleportTo(TacticalBoard.GridNode node)
 	{
-		if (this.Entity != null)
+		SpaceBoardNodeComponent comp = (node != null) ? SpaceBoardComponent.Instance.GetNode(node.Id) : null;
+		if (comp != null)
 		{
-			this.Entity.ActivateAt(3, 0);
+			Quaternion rot = (this.Entity.Team == TacticalBoard.PlayerTeam.TeamA) ? Quaternion.identity : Quaternion.LookRotation(new Vector3(0, 0, -1));
+
+			this.Mover.Teleport(comp.transform.position, rot);
+
+			this.deployed = true;
+			return true;
 		}
+
+		return false;
 	}
 
 	public bool IsActive()
