@@ -18,6 +18,15 @@ public class SpaceBoardComponent : MonoBehaviour
 	public Dictionary<ushort,SpaceBoardNodeComponent> NodeMap;
 	public Dictionary<uint,GameBoardEntity> EntityMap;
 
+	public enum InputMode
+	{
+		None,
+		SelectDeployLocation
+	}
+	public InputMode Input = InputMode.None;
+	public GameBoardEntity InputEntity;
+
+
 	void Awake() 
 	{
 		Instance = this;
@@ -46,6 +55,22 @@ public class SpaceBoardComponent : MonoBehaviour
 		gbe.Entity = entity;
 
 		this.EntityMap[entity.Id] = gbe; 
+	}
+
+	public void EnableBoardInput()
+	{
+		foreach(KeyValuePair<ushort, SpaceBoardNodeComponent> pair in this.NodeMap)
+		{
+			pair.Value.gameObject.SetActive(true);
+		}
+	}
+
+	public void DisableBoardInput()
+	{
+		foreach(KeyValuePair<ushort, SpaceBoardNodeComponent> pair in this.NodeMap)
+		{
+			pair.Value.gameObject.SetActive(false);
+		}
 	}
 
 	public void BeginDeployEntity(TacticalBoard.Entity entity, TacticalBoard.GridNode node)
@@ -112,8 +137,38 @@ public class SpaceBoardComponent : MonoBehaviour
 		return this.NodeMap.ContainsKey(id) ? this.NodeMap[id] : null;
 	}
 
-	//This needs to happen AFTER we join a game
-	void CreateBoard(int sizeX, int sizeY)
+	public void SetInputMode(InputMode mode, GameBoardEntity entity = null)
+	{
+		switch(mode)
+		{
+			case InputMode.SelectDeployLocation:
+			{
+				this.InputEntity = entity;
+				this.EnableBoardInput();
+				break;
+			}
+		}
+
+		this.Input = mode;
+	}
+
+	public void OnNodeSelected(TacticalBoard.GridNode node)
+	{
+		switch (this.Input)
+		{
+			case InputMode.SelectDeployLocation:
+			{
+				if (this.InputEntity != null)
+				{
+					this.InputEntity.RequestDeployment(node);
+					this.DisableBoardInput();
+				}
+				break;
+			}
+		}
+	}
+
+	private void CreateBoard(int sizeX, int sizeY)
 	{
 		Debug.LogError("CreateBoard sizeX=" + sizeX + " sizeY=" + sizeY);
 
@@ -137,10 +192,13 @@ public class SpaceBoardComponent : MonoBehaviour
 				if ((node != null) && (nodeComp != null))
 				{
 					nodeComp.Node = node;
+					nodeComp.Board = this;
 					this.NodeMap.Add(node.Id, nodeComp);
 				}
 			}
 		}
+
+		this.DisableBoardInput();
 	}
 
 	private void OnGameActivity(TacticalBoard.Game.ActivityType type, TacticalBoard.Game game, TacticalBoard.Player localPlayer)

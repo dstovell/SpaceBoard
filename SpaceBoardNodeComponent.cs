@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class SpaceBoardNodeComponent : MonoBehaviour 
 {
+	public SpaceBoardComponent Board;
+
 	public ushort Id
 	{
 		get
@@ -16,6 +18,14 @@ public class SpaceBoardNodeComponent : MonoBehaviour
 
 	void Awake() 
 	{
+	}
+
+	void OnMouseDown()
+	{
+		if (this.Board != null)
+		{
+			this.Board.OnNodeSelected(this.Node);
+		}
 	}
 }
 		

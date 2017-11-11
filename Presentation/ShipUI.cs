@@ -24,12 +24,7 @@ public class ShipUI : MonoBehaviour
 		Debug.Log("OnMouseDown " + this.gameObject.name);
 		if (this.Entity != null)
 		{
-			//this.Entity.RequestDeployment();
-		}
-		else if ((this.Mover != null) && (this.Warper != null))
-		{
-			//this.Mover.Warp(this.Warper);
-
+			SpaceBoardComponent.Instance.SetInputMode(SpaceBoardComponent.InputMode.SelectDeployLocation, this.Entity);
 		}
 	}
 	

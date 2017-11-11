@@ -17,18 +17,8 @@ namespace TacticalBoard
 
 		private long LocalTurnWait = 1;
 
-		public static TacticalBoard.InterventionsManager Instance = null;
-
 		public List<Request> Requests;
 		public List<Request> Results;
-
-		public static void Init(Flow ft)
-		{
-			if (TacticalBoard.InterventionsManager.Instance == null)
-			{
-				TacticalBoard.InterventionsManager.Instance = new TacticalBoard.InterventionsManager(ft);
-			}
-		}
 
 		public void RequestIntervention(Request r)
 		{

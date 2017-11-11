@@ -125,6 +125,7 @@ namespace TacticalBoard
 			this.State = GameState.WaitingToConnect;
 			this.Client = new NetClient(this, ip, NetServer.DefaultPort);
 			this.Client.Connect();
+			this.Interventions = new InterventionsManager(InterventionsManager.Flow.Client);
 		}
 
 		public void LoadLevel(uint levelId)
@@ -270,7 +271,7 @@ namespace TacticalBoard
 
 		protected Dictionary<uint, uint> EntityCounts;
 
-		protected InterventionsManager Interventions;
+		public InterventionsManager Interventions;
 
 		private NetClient Client;
 

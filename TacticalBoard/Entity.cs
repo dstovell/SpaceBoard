@@ -340,8 +340,7 @@ namespace TacticalBoard
 			r.OnRequestComplete = this.OnDeploymentRequestComplete;
 			r.OnRequestAction = this.OnDeployment;
 
-			InterventionsManager.Instance.RequestIntervention(r);
-
+			this.ParentGame.Interventions.RequestIntervention(r);
 			return true;
 		}
 
