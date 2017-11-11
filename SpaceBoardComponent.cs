@@ -154,7 +154,7 @@ public class SpaceBoardComponent : MonoBehaviour
 			{
 				case TacticalBoard.EntityActivity.ActivityType.Created:
 				{
-					Debug.Log("ActivityType.Created " + ea.EntitySource.Id + " " + ea.EntitySource.Current.Id + " ");
+					//Debug.Log("ActivityType.Created " + ea.EntitySource.Id + " " + ea.EntitySource.Current.Id + " ");
 					this.CreateEntity(ea.EntitySource);
 					break;
 				}

@@ -29,7 +29,11 @@ namespace TacticalBoard
 
 			AddEntityData(map, "Asteriod", EntityClass.Type.Inanimate, null);
 
-			AddEntityData(map, "Frigate", EntityClass.Type.Frigate, delegate(EntityParams ep) {
+			AddEntityData(map, "Frigate_Predator_Blue", EntityClass.Type.Frigate, delegate(EntityParams ep) {
+				ep.armour = 5;	
+			});
+
+			AddEntityData(map, "Frigate_Predator_Black", EntityClass.Type.Frigate, delegate(EntityParams ep) {
 				ep.armour = 5;	
 			});
 

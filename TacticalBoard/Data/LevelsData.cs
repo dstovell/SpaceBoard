@@ -27,7 +27,7 @@ namespace TacticalBoard
 			Dictionary<uint,LevelParams> map = new Dictionary<uint,LevelParams>();
 
 			AddLevelData(map, "Test01", delegate(LevelParams lp) {
-				string entity = "Frigate";
+				string entity = "Frigate_Predator_Black";
 				lp.AddPlacement(Data.GetHash(entity), 3, 6, PlayerTeam.TeamB);
 				lp.AddPlacement(Data.GetHash(entity), 0, 6, PlayerTeam.TeamB);
 			});
