@@ -7,6 +7,7 @@ namespace TacticalBoard
 	{
 		public static TacticalBoard.Manager Instance = null;
 
+		public Game.GameActivityDel OnGameActivity;
 		public Game.EntityActivityDel OnEntityActivity;
 
 		public long TurnCount
@@ -36,6 +37,14 @@ namespace TacticalBoard
 			}
 		}
 
+		public bool CreateGameObject(uint gameId = 0)
+		{
+			this.CurrentGame = new Game(gameId);
+			this.CurrentGame.OnEntityActivity += this._OnEntityActivity;
+			this.CurrentGame.OnGameActivity += this._OnGameActivity;
+			return true;
+		}
+
 		public bool JoinGame(uint gameId, string ip, int port)
 		{
 			if (this.CurrentGame != null)
@@ -43,8 +52,7 @@ namespace TacticalBoard
 				return false;
 			}
 
-			this.CurrentGame = new Game(gameId);
-			this.CurrentGame.OnEntityActivity += this._OnEntityActivity;
+			this.CreateGameObject(gameId);
 			this.CurrentGame.Connect(ip, port);
 			return true;
 		}
@@ -56,8 +64,7 @@ namespace TacticalBoard
 				return false;
 			}
 
-			this.CurrentGame = new Game();
-			this.CurrentGame.OnEntityActivity += this._OnEntityActivity;
+			this.CreateGameObject();
 			this.CurrentGame.Connect(ip, port);
 			return true;
 		}
@@ -71,6 +78,14 @@ namespace TacticalBoard
 			if (this.OnEntityActivity != null)
 			{
 				this.OnEntityActivity(activity);
+			}
+		}
+
+		private void _OnGameActivity(Game.ActivityType type, Game game, Player player)
+		{
+			if (this.OnGameActivity != null)
+			{
+				this.OnGameActivity(type, game, player);
 			}
 		}
 	}

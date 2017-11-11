@@ -39,8 +39,6 @@ namespace TacticalBoard
 		public AStar.SpatialAStar<GridNode, SquareGridSearcher> aStar;
 		public GridNode [,] Nodes;
 		public Dictionary<ushort,GridNode> NodeMap;
-		public int X;
-		public int Y;
 
 		public SquareGrid(int x, int y)
 		{

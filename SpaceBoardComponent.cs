@@ -25,13 +25,7 @@ public class SpaceBoardComponent : MonoBehaviour
 		this.EntityMap = new Dictionary<uint,GameBoardEntity>();
 		TacticalBoard.Manager.Init();
 		TacticalBoard.Manager.Instance.OnEntityActivity += this.OnEntityActivity;
-		CreateBoard();
-	}
-
-	public TacticalBoard.Player CreatePlayer(uint playerId, TacticalBoard.PlayerTeam team)
-	{
-		return null;
-		//return TacticalBoard.Manager.Instance.AddPlayer(playerId, team);
+		TacticalBoard.Manager.Instance.OnGameActivity += this.OnGameActivity;
 	}
 
 	public void CreateEntity(TacticalBoard.Entity entity)
@@ -108,12 +102,17 @@ public class SpaceBoardComponent : MonoBehaviour
 	}
 
 	//This needs to happen AFTER we join a game
-	void CreateBoard()
+	void CreateBoard(int sizeX, int sizeY)
 	{
+		Debug.LogError("CreateBoard sizeX=" + sizeX + " sizeY=" + sizeY);
+
 		if (this.BoardNodePrefab == null)
 		{
 			return;
 		}
+
+		this.SizeX = sizeX;
+		this.SizeY = sizeY;
 
 		for (int x=0; x<this.SizeX; x++)
 		{
@@ -129,6 +128,18 @@ public class SpaceBoardComponent : MonoBehaviour
 					nodeComp.Node = node;
 					this.NodeMap.Add(node.Id, nodeComp);
 				}
+			}
+		}
+	}
+
+	private void OnGameActivity(TacticalBoard.Game.ActivityType type, TacticalBoard.Game game, TacticalBoard.Player localPlayer)
+	{
+		switch (type)
+		{
+			case TacticalBoard.Game.ActivityType.Join:
+			{
+				this.CreateBoard(game.Board.X, game.Board.Y);
+				break;
 			}
 		}
 	}

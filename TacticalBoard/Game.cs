@@ -57,6 +57,14 @@ namespace TacticalBoard
 		}
 		protected SimType Sim;
 
+		public enum ActivityType
+		{
+			Join,
+			Start,
+			End
+		}
+		public List<ActivityType> ActivityQueue;
+
 		public enum GameState
 		{
 			None,
@@ -89,6 +97,8 @@ namespace TacticalBoard
 			this.EntityMap = new Dictionary<uint,Entity>();
 
 			this.CurrentActivity = new List<EntityActivity>();
+
+			this.ActivityQueue = new List<ActivityType>();
 		}
 
 		protected long deltaTime = 0;
@@ -238,6 +248,9 @@ namespace TacticalBoard
 		public delegate void EntityActivityDel(List<EntityActivity> activity);		
 		public EntityActivityDel OnEntityActivity;
 
+		public delegate void GameActivityDel(ActivityType type, Game game, Player player);
+		public GameActivityDel OnGameActivity;
+
 		protected long LastTurnUpdate = 0;
 
 		public List<Entity> Entites;
@@ -261,6 +274,8 @@ namespace TacticalBoard
 			bool hasStarted = ((this.StartTime != 0) && (this.StartTime <= now));
 			bool hasEnded = ((this.EndTime != 0) && (this.EndTime > now));
 			bool inTimeFrame = (hasStarted && !hasEnded);
+
+			this.UpdateActivityNotifications();
 
 			if (this.State == GameState.Ended)
 			{
@@ -354,6 +369,24 @@ namespace TacticalBoard
 			}
 		}
 
+		private void QueueGameActivity(ActivityType type)
+		{
+			this.ActivityQueue.Add(type);
+		}
+
+		private void UpdateActivityNotifications()
+		{
+			if (this.OnGameActivity != null)
+			{
+				for (int i=0; i<this.ActivityQueue.Count; i++)
+				{
+					this.OnGameActivity(this.ActivityQueue[i], this, this.LocalPlayer);
+				}
+			}
+
+			this.ActivityQueue.Clear();
+		}
+
 		public uint GenerateEntityId(uint playerId)
 		{
 			this.EntityCounts[playerId]++;
@@ -430,7 +463,7 @@ namespace TacticalBoard
 
 		public void HandleGameJoined(GameJoined msg)
 		{
-			Debug.Log("HandleGameJoined gameId=" + msg.GameId + " PlayerId=" + msg.PlayerId + " Entities=" + msg.Entities.Length);
+			Debug.LogError("HandleGameJoined gameId=" + msg.GameId + " PlayerId=" + msg.PlayerId + " Entities=" + msg.Entities.Length);
 			this.Id = msg.GameId;
 			this.State = GameState.WaitingForPlayers;
 
@@ -438,6 +471,8 @@ namespace TacticalBoard
 			this.LoadLevel(msg.LevelId);
 
 			this.LocalPlayer = this.AddPlayer(msg.PlayerId, msg.Team, msg.Entities);
+
+			this.QueueGameActivity(ActivityType.Join);
 		}
 
 		public void HandleGameStart(GameStart msg)
@@ -448,11 +483,13 @@ namespace TacticalBoard
 				this.State = GameState.WaitingForStart;
 				Debug.Log("Starting Game at: " + this.StartTime);
 			}
+
+			this.QueueGameActivity(ActivityType.Start);
 		}
 
 		public void HandleGameEnd(GameEnd msg)
 		{
-			
+			this.QueueGameActivity(ActivityType.End);
 		}
 
 		public void HandlePlayerJoin(PlayerJoin msg)

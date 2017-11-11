@@ -80,6 +80,9 @@ namespace TacticalBoard
 
 	public class Grid
 	{
+		public int X;
+		public int Y;
+
 		public virtual GridSearcher CreateSearcher()
 		{
 			return null;
