@@ -58,6 +58,7 @@ namespace TacticalBoard
 			else if (this.FlowType == Flow.Server)
 			{
 				//Auto Success for now!
+				r.Turn = this.ParentGame.TurnCount + 1;
 				r.Result = ResultType.Success;
 				this.ServerGame.SendInterventionResult(r);
 				this.AddRequest(r);

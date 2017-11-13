@@ -274,8 +274,6 @@ namespace TacticalBoard
 
 		private NetClient Client;
 
-		private int initialActivityReportedCount = 0;
-
 		public void SendInterventionRequest(Request r)
 		{
 			PlayerIntervention pi = new PlayerIntervention(r);			
@@ -301,21 +299,12 @@ namespace TacticalBoard
 				this.Interventions.Update(this.TurnCount);
 			}
 
+			UpdateEntityNotifications();
+
 			if (!this.IsRunning())
 			{
-				if ((this.CurrentActivity.Count > this.initialActivityReportedCount) && (this.OnEntityActivity != null))
-				{
-					this.OnEntityActivity(this.CurrentActivity);
-					this.initialActivityReportedCount = this.CurrentActivity.Count;
-				}
-
 				if (inTimeFrame)
 				{
-					if (this.initialActivityReportedCount < this.CurrentActivity.Count)
-					{
-						Debug.LogError("Game reported only " + this.initialActivityReportedCount + " of " + this.CurrentActivity.Count + " events");
-					}
-
 					this.CurrentActivity.Clear();
 					Debug.Log("Running " + this.GetTime());
 					this.State  = GameState.Running;
@@ -341,7 +330,6 @@ namespace TacticalBoard
 
 		private void UpdateTurn()
 		{
-			//First clear state from previous turn
 			this.CurrentActivity.Clear();
 			this.TurnCount++;
 
@@ -378,15 +366,22 @@ namespace TacticalBoard
 			}
 
 
-			if (this.OnEntityActivity != null)
-			{
-				this.OnEntityActivity(this.CurrentActivity);
-			}
+			UpdateEntityNotifications();
 		}
 
 		private void QueueGameActivity(ActivityType type)
 		{
 			this.ActivityQueue.Add(type);
+		}
+
+		private void UpdateEntityNotifications()
+		{
+			if (this.OnEntityActivity != null)
+			{
+				this.OnEntityActivity(this.CurrentActivity);
+			}
+
+			this.CurrentActivity.Clear();
 		}
 
 		private void UpdateActivityNotifications()
@@ -492,7 +487,7 @@ namespace TacticalBoard
 
 		public void HandleGameStart(GameStart msg)
 		{
-			if (this.State == GameState.WaitingForPlayers)
+			if ((this.State == GameState.WaitingToConnect) || (this.State == GameState.WaitingForPlayers))
 			{
 				this.StartTime = msg.AtTime;
 				this.State = GameState.WaitingForStart;
