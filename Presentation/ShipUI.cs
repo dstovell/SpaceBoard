@@ -15,7 +15,7 @@ public class ShipUI : MonoBehaviour
 		if (this.Obj != null)
 		{
 			this.Entity = this.Obj.GetComponent<GameBoardEntity>();
-			this.Mover = this.Obj.GetComponent<ShipMover>();	
+			this.Mover = this.Obj.GetComponent<ShipMover>();
 		}
 	}
 
@@ -27,9 +27,20 @@ public class ShipUI : MonoBehaviour
 			SpaceBoardComponent.Instance.SetInputMode(SpaceBoardComponent.InputMode.SelectDeployLocation, this.Entity);
 		}
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
+
+	void Update () 
+	{
+		if (this.Entity == null)
+		{
+			foreach(KeyValuePair<uint,GameBoardEntity> p in SpaceBoardComponent.Instance.EntityMap)
+			{
+				GameBoardEntity gbe = p.Value;
+				if (gbe.Entity.Team == TacticalBoard.PlayerTeam.TeamA)
+				{
+					this.Entity = gbe;
+					break;
+				}
+			}
+		}
 	}
 }

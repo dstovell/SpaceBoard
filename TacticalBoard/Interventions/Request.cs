@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TacticalBoard
 {
-	public class Request
+	public class Request : Serializable
 	{
 		public delegate void RequestDelegate(Request r);
 		public RequestDelegate OnRequestComplete;
@@ -50,6 +50,32 @@ namespace TacticalBoard
 			{
 				TacticalBoard.Debug.Log("Request " + this.Type.ToString() + " turn=" + turn + " entityId=" + entityId + " gridNodeId=" + gridNodeId);
 			}
+		}
+
+		public Request()
+		{
+		}
+
+		public void Update(Request updated)
+		{
+			this.TurnRequested = updated.TurnRequested;
+			this.Turn = updated.Turn;
+			this.GridNodeId = updated.GridNodeId;
+			this.Result = updated.Result;
+		}
+
+		public override void OnSerialize(Serializer s)
+		{
+			this.TurnRequested = s.Serialize(this.TurnRequested);
+			this.Turn = s.Serialize(this.Turn);
+			this.RequestId = s.Serialize(this.RequestId);
+			this.RequestId = s.Serialize(this.RequestId);
+			this.PlayerId = s.Serialize(this.PlayerId);
+			this.EntityId = s.Serialize(this.EntityId);
+			this.GridNodeId = s.Serialize(this.GridNodeId);
+
+			this.Type = (InterventionType)s.Serialize((int)this.Type);
+			this.Result = (ResultType)s.Serialize((int)this.Result);
 		}
 
 		public long TurnRequested;

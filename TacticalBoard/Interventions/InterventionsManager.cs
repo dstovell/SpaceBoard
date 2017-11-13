@@ -17,12 +17,66 @@ namespace TacticalBoard
 
 		private long LocalTurnWait = 1;
 
+		public Game ParentGame;
 		public List<Request> Requests;
 		public List<Request> Results;
 
+		private uint RequestCount = 0;
+
+		public NetServerGame ServerGame
+		{
+			get
+			{
+				return (this.FlowType == Flow.Server) ? (this.ParentGame as NetServerGame) : null;
+			}
+		}
+
+		public uint GenerateRequestId(uint playerId)
+		{
+			this.RequestCount++;
+
+			string hashableString = string.Format("{0}_{1}", playerId, this.RequestCount);
+			return (uint)Data.GetHash(hashableString);
+		}
+
 		public void RequestIntervention(Request r)
 		{
-			this.Requests.Add(r);
+			r.RequestId = this.GenerateRequestId(this.ParentGame.LocalPlayer.Id);
+			this.AddRequest(r);
+			if (this.FlowType == Flow.Client)
+			{
+				this.ParentGame.SendInterventionRequest(r);
+			}
+		}
+
+		public void HandleIntervention(Request r)
+		{
+			if (this.FlowType == Flow.Client)
+			{
+				this.AddRequest(r);
+			}
+			else if (this.FlowType == Flow.Server)
+			{
+				//Auto Success for now!
+				r.Result = ResultType.Success;
+				this.ServerGame.SendInterventionResult(r);
+				this.AddRequest(r);
+			}
+		}
+
+		public void AddRequest(Request r)
+		{
+			int oldRequestIndex = this.Requests.FindIndex(delegate(Request other) {
+						               return (other.RequestId == r.RequestId);
+						            });
+
+			if (oldRequestIndex == -1)
+			{
+				this.Requests.Add(r);
+				return;
+			}
+
+			this.Requests[oldRequestIndex].Update(r);
 		}
 
 		private static bool RemoveDelivered(Request r)
@@ -56,6 +110,7 @@ namespace TacticalBoard
 				if (req.Result != ResultType.Pending)
 				{
 					this.Results.Add(req);
+					Debug.Log("Interventions Request=" + req.RequestId + " " + req.Result.ToString());
 				}
 			}
 
@@ -72,7 +127,7 @@ namespace TacticalBoard
 			for (int i=0; i<this.Results.Count; i++)
 			{
 				Request res = this.Results[i];
-				if (res.Turn == turnCount)
+				if (res.Turn >= turnCount)
 				{
 					res.HandleRequestAction();
 				}
@@ -81,8 +136,10 @@ namespace TacticalBoard
 			this.Results.RemoveAll(InterventionsManager.RemoveDelivered);
 		}
 
-		public InterventionsManager(Flow ft)
+		public InterventionsManager(Flow ft, Game parentGame)
 		{
+			this.FlowType = ft;
+			this.ParentGame = parentGame;
 			this.Requests = new List<Request>();
 			this.Results = new List<Request>();
 		}

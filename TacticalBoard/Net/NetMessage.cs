@@ -184,46 +184,22 @@ namespace TacticalBoard
 
 	public class PlayerIntervention : NetMessage
 	{
-		public uint RequestId;
-		public uint PlayerId;
-		public long TurnRequested;
-		public long Turn;
-		public uint EntityId;
-		public ushort GridNodeId;
-		public InterventionType Type;
-
-		public ResultType Result;
-		public bool Delivered;
+		public Request InterventionRequest;
 
 		public PlayerIntervention(Request playerRequest) : base(NetMessageType.PlayerIntervention)
 		{
-			this.RequestId = playerRequest.RequestId;
-			this.PlayerId = playerRequest.PlayerId;
-			this.TurnRequested = playerRequest.TurnRequested;
-			this.Turn = playerRequest.Turn;
-			this.EntityId = playerRequest.EntityId;
-			this.GridNodeId = playerRequest.GridNodeId;
-
-			this.Type = playerRequest.Type;
-			this.Result = playerRequest.Result;
+			this.InterventionRequest = playerRequest;
 		}
 
 		public PlayerIntervention() : base(NetMessageType.PlayerIntervention)
 		{
+			this.InterventionRequest = new Request();
 		}
 
 		public override void OnSerialize(Serializer s)
 		{
 			base.OnSerialize(s);
-			this.RequestId = s.Serialize(this.RequestId);
-			this.PlayerId = s.Serialize(this.PlayerId);
-			this.TurnRequested = s.Serialize(this.TurnRequested);
-			this.Turn = s.Serialize(this.Turn);
-			this.EntityId = s.Serialize(this.EntityId);
-			this.GridNodeId = s.Serialize(this.GridNodeId);
-
-			this.Type = (InterventionType)s.Serialize((int)this.Type);
-			this.Result = (ResultType)s.Serialize((int)this.Result);
+			this.InterventionRequest.OnSerialize(s);
 		}
 	}
 }

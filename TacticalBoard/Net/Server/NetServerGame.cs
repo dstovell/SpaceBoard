@@ -8,6 +8,7 @@ namespace TacticalBoard
 	{
 		public NetServerGame(uint id) : base(id)
 		{
+			this.Interventions = new InterventionsManager(InterventionsManager.Flow.Server, this);
 			this.LoadRandomLevel();
 			this.State = GameState.WaitingToConnect;
 		}
@@ -68,6 +69,12 @@ namespace TacticalBoard
 			}
 		}
 
+		public void SendInterventionResult(Request r)
+		{
+			PlayerIntervention pi = new PlayerIntervention(r);			
+			this.SendToPlayers(pi, Hazel.SendOption.Reliable);
+		}
+
 		public override void Update()
 		{
 			base.Update();
@@ -95,6 +102,14 @@ namespace TacticalBoard
 			{
 				case NetMessageType.Handshake:
 				{
+					break;
+				}
+
+				case NetMessageType.PlayerIntervention:
+				{
+					PlayerIntervention msg = new PlayerIntervention();
+					NetMessageHub.DeSerializeData(msg, arg.Bytes, 0);
+					p.Game.HandlePlayerIntervention(msg);
 					break;
 				}
 

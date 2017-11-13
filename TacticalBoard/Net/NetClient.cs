@@ -44,6 +44,12 @@ namespace TacticalBoard
 			this.Conn.Connect(buffer); 
 		}
 
+		public void SendMessage(NetMessage msg, Hazel.SendOption sendOption = Hazel.SendOption.Reliable)
+		{
+			byte [] buffer = NetMessageHub.SerializeData(msg);
+			this.Conn.SendBytes(buffer, sendOption);
+		}
+
 		private void OnData(object obj, Hazel.DataReceivedEventArgs arg)
 		{
 			if (this.ParentGame != null)
@@ -91,6 +97,15 @@ namespace TacticalBoard
 						this.ParentGame.HandlePlayerLeave(msg);
 						break;
 					}
+
+					case NetMessageType.PlayerIntervention:
+					{
+						PlayerIntervention msg = new PlayerIntervention();
+						NetMessageHub.DeSerializeData(msg, arg.Bytes, 0);
+						this.ParentGame.HandlePlayerIntervention(msg);
+						break;
+					}
+
 
 					default:
 					{

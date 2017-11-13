@@ -125,7 +125,7 @@ namespace TacticalBoard
 			this.State = GameState.WaitingToConnect;
 			this.Client = new NetClient(this, ip, NetServer.DefaultPort);
 			this.Client.Connect();
-			this.Interventions = new InterventionsManager(InterventionsManager.Flow.Client);
+			this.Interventions = new InterventionsManager(InterventionsManager.Flow.Client, this);
 		}
 
 		public void LoadLevel(uint levelId)
@@ -203,7 +203,6 @@ namespace TacticalBoard
 			this.LogEntityBasicActivity(e, EntityActivity.ActivityType.Teleported);
 		}
 
-
 		public void LogRotateTo(Entity e, GridNode lookAt)
 		{
 			EntityActivity ea = new EntityActivity(this.TurnCount, EntityActivity.ActivityType.RotatedTo, e);
@@ -277,6 +276,12 @@ namespace TacticalBoard
 
 		private int initialActivityReportedCount = 0;
 
+		public void SendInterventionRequest(Request r)
+		{
+			PlayerIntervention pi = new PlayerIntervention(r);			
+			this.Client.SendMessage(pi, Hazel.SendOption.Reliable);
+		}
+
 		public virtual void Update()
 		{
 			long now = this.GetTime();
@@ -289,6 +294,11 @@ namespace TacticalBoard
 			if (this.State == GameState.Ended)
 			{
 				return;
+			}
+
+			if (this.Interventions != null)
+			{
+				this.Interventions.Update(this.TurnCount);
 			}
 
 			if (!this.IsRunning())
@@ -306,6 +316,7 @@ namespace TacticalBoard
 						Debug.LogError("Game reported only " + this.initialActivityReportedCount + " of " + this.CurrentActivity.Count + " events");
 					}
 
+					this.CurrentActivity.Clear();
 					Debug.Log("Running " + this.GetTime());
 					this.State  = GameState.Running;
 				}
@@ -333,11 +344,6 @@ namespace TacticalBoard
 			//First clear state from previous turn
 			this.CurrentActivity.Clear();
 			this.TurnCount++;
-
-			if (this.Interventions != null)
-			{
-				this.Interventions.Update(this.TurnCount);
-			}
 
 			if (this.Board != null)
 			{
@@ -508,6 +514,14 @@ namespace TacticalBoard
 
 		public void HandlePlayerLeave(PlayerLeave msg)
 		{
+		}
+
+		public void HandlePlayerIntervention(PlayerIntervention msg)
+		{
+			if (this.Interventions != null)
+			{
+				this.Interventions.HandleIntervention(msg.InterventionRequest);
+			}
 		}
 
 		private int EntityComparer(Entity a, Entity b)
