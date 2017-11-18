@@ -183,7 +183,7 @@ namespace TacticalBoard
 
 		public bool IsDead()
 		{
-			return (this.Current.armour > 0);
+			return (this.Current.armour <= 0);
 		}
 
 		public static int DamageModifier(EntityParams.DamageType damageType, EntityParams.LightType damageLightType, EntityParams.LightType shieldLightType)
@@ -297,7 +297,7 @@ namespace TacticalBoard
 
 		public bool Attack(Entity target)
 		{
-			if ((target == null) || (!this.IsActive()))
+			if ((target == null) || !this.IsActive() || this.IsDead())
 			{
 				return false;
 			}

@@ -34,8 +34,7 @@ namespace TacticalBoard
 					EntityAssesment hostile = pair.Value;
 					if (hostile.inRange)
 					{
-						Debug.Log(pair.Key + " range=" + hostile.rangeTo + " pathDistance=" + hostile.pathDistance);
-						Debug.Log("Pew!");
+						//Debug.Log(e.Id + " " + pair.Key + " range=" + hostile.rangeTo + " pathDistance=" + hostile.pathDistance);
 						e.Attack(hostile.entity);
 						break;
 					}

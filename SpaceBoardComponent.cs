@@ -53,6 +53,7 @@ public class SpaceBoardComponent : MonoBehaviour
 
 		GameBoardEntity gbe = obj.GetComponent<GameBoardEntity>();
 		gbe.Entity = entity;
+		obj.name += " " + entity.Id;
 
 		this.EntityMap[entity.Id] = gbe; 
 	}
@@ -104,6 +105,17 @@ public class SpaceBoardComponent : MonoBehaviour
 
 		GameBoardEntity gbe = this.EntityMap[entity.Id];
 		gbe.TeleportTo(node);
+	}
+
+	public void DestroyEntity(TacticalBoard.Entity entity)
+	{
+		if (!this.EntityMap.ContainsKey(entity.Id))
+		{
+			return;
+		}
+
+		GameBoardEntity gbe = this.EntityMap[entity.Id];
+		gbe.gameObject.SetActive(false);
 	}
 
 	public float GetX(int x)
@@ -270,6 +282,7 @@ public class SpaceBoardComponent : MonoBehaviour
 
 				case TacticalBoard.EntityActivity.ActivityType.Destroyed:
 				{
+					this.DestroyEntity(ea.EntitySource);
 					break;
 				}
 			}

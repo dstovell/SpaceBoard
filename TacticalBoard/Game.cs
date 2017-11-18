@@ -350,7 +350,7 @@ namespace TacticalBoard
 			for (int i=0; i<this.Entites.Count; i++)
 			{
 				Entity e = this.Entites[i];
-				if (e.IsActive())
+				if (e.IsActive() && !e.IsDead())
 				{
 					e.UpdateMove();
 				}
@@ -359,7 +359,7 @@ namespace TacticalBoard
 			for (int i=0; i<this.Entites.Count; i++)
 			{
 				Entity e = this.Entites[i];
-				if (e.IsActive())
+				if (e.IsActive() && !e.IsDead())
 				{
 					e.UpdateAttack();
 				}
